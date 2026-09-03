@@ -15,7 +15,6 @@ class HelperExcel {
         	->andWhere(['id' => $bookId])
         	->one();
                    
-        \app\models\HelperLevoshkin::update_unknown($book);
 		\app\models\HelperCache::updateCache([$book]);
 	}
     /**
@@ -56,7 +55,9 @@ class HelperExcel {
             'relative_fio',
             'filename',
             'comment',
-            'rip_style'
+            'rip_style',
+            'num_crem_reg',
+            'num_crem_account',
         ];
 
         $saveData = [];
@@ -84,9 +85,8 @@ class HelperExcel {
                 }
             }
             
-            if($rowNum <= 2) {
+            if($rowNum <= 2)
                 continue;
-            }
 
             foreach ($row as $k => $v) {
                 $v = $v ?? '';
@@ -118,7 +118,7 @@ class HelperExcel {
                         }
                         break;
                     case 'B':
-                        $record->fio = (string)$v;
+                        $record->fio = preg_replace('/\s+/', ' ', trim((string)$v));
                         break;
                     case 'C':
                         $record->age = (string)$v;
@@ -170,11 +170,17 @@ class HelperExcel {
                         $record->comment = (string)$v;
                         break;
                     case 'Q':
-                        if (((string)$v == "Гроб") || ((string)$v == "гроб")) {
+                        if (mb_strtolower((string)$v, 'UTF-8') === "гроб")
                             $record->rip_style = 1;
-                        } else {
+                        else if (mb_strtolower((string)$v, 'UTF-8') === "урна c прахом")
                             $record->rip_style = 2;
-                        }
+                        else
+                            $record->rip_style = 2;
+                        /*else if (mb_strtolower((string)$v, 'UTF-8') === "урны")
+                            $record->rip_style = 3;
+                        else if (mb_strtolower((string)$v, 'UTF-8') === "урны")
+                            $record->rip_style = 4;*/
+                        
                         break;
                 }
             }
@@ -233,7 +239,9 @@ class HelperExcel {
                         'relative_fio' => $record->relative_fio,
                         'filename' => $record->filename,
                         'comment' => $record->comment,
-                        'rip_style' => $record->rip_style
+                        'rip_style' => $record->rip_style,
+                        'num_crem_reg' => '',//заглушка
+                        'num_crem_account' => '',
                     ];
                 }
             }

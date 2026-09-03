@@ -1,16 +1,34 @@
 <?php
 
 namespace app\models;
-use yii\helpers\FileHelper;
+use app\models\Record;
+use app\models\CacheRecords;
 
 class HelperCache {
+    /**
+     * @return void
+     * @param Record $record
+     */
+    public static function updateSearchRecord(Record $record): void {              
+		$sfb = CacheRecords::find()->query(['term' => ['record_id' => $record->id]])->one();
+
+        if (!$sfb) {
+            $sfb = new CacheRecords();
+            $sfb->_id = $record->id;
+            $sfb->page_punkt = 0;
+        }
+        /** @var CacheRecords $sfb */
+
+        $sfb->saveData($record);
+    }
+
     /**
      * @return void
      * @param int $cemetery
      */
     public static function deleteCemetery(int $cemetery) {
         $response = \Yii::$app->elasticsearch->post(
-            [ \app\models\CacheRecords::index(), '_delete_by_query' ],
+            [ CacheRecords::index(), '_delete_by_query' ],
             ['wait_for_completion' => 'false',],
             json_encode([
                 'query' => [
@@ -26,7 +44,7 @@ class HelperCache {
      */
     public static function deleteBook(int $book) {
         $response = \Yii::$app->elasticsearch->post(
-            [ \app\models\CacheRecords::index(), '_delete_by_query' ],
+            [ CacheRecords::index(), '_delete_by_query' ],
             ['wait_for_completion' => 'false',],
             json_encode([
                 'query' => [
@@ -41,12 +59,15 @@ class HelperCache {
      * @param array<Book> $books
      * @param (\Closure(): void)|null $updateStatus
      */
-	public static function updateCache(array $books, ?\Closure $updateStatus = null) {
+	public static function updateCache(array $books, ?\Closure $updateStatus = null, string $indexName = '') {
+        if(!$indexName)
+            $indexName = CacheRecords::index();
+    
         $batchRows = CacheRecords::getDb()->createBulkCommand();
         $counter = 0;
 
         foreach ($books as $book) {
-            $records = \app\models\Record::find()
+            $records = Record::find()
                 ->andWhere(['book_id' => $book->id])
                 ->andWhere(['deleted' => 0])
                 ->orderBy('id')
@@ -61,7 +82,7 @@ class HelperCache {
             }
 
             foreach ($records as $record) {
-                $result = self::updateSearchRecord($record, $book);
+                $result = CacheRecords::convertData($record, $book);
 
                 if ($result['page_num'] != $lastPage) {
                     $lastPage = $result['page_num'];
@@ -72,45 +93,60 @@ class HelperCache {
 
                 $batchRows->addAction([
                     'index' => [
-                        '_index' => \app\models\CacheRecords::index(),
-                        '_id'    => $record['id'],
+                        '_index' => $indexName,
+                        '_id'    => $result['record_id'],
                     ]
                 ],
                 [
                     'record_id' => $result['record_id'],
                     'cemetery_id' => $result['cemetery_id'],
                     'regnum' => $result['regnum'],
+
                     'fam' => $result['fam'],
                     'nam' => $result['nam'],
                     'fio_display' => $result['fio_display'],
                     'ot' => $result['ot'],
+
                     'age' => $result['age'],
                     'age_int' => $result['age_int'],
+
                     'dead_year' => $result['dead_year'],
                     'dead_month' => $result['dead_month'],
                     'dead_day' => $result['dead_day'],
                     'dead_date' => $result['dead_date'],
+
                     'rip_year' => $result['rip_year'],
                     'rip_month' => $result['rip_month'],
                     'rip_day' => $result['rip_day'],
                     'rip_date' => $result['rip_date'],
+
+                    'num_crem_reg' => $result['num_crem_reg'],
+                    'num_crem_account' => $result['num_crem_account'],
+
                     'zags' => $result['zags'],
                     'rip_style' => $result['rip_style'],
+
                     'unknown' => $result['unknown'],
                     'unknown_number' => $result['unknown_number'],
+
                     'docnum' => $result['docnum'],
                     'areanum' => $result['areanum'],
                     'rownum' => $result['rownum'],
                     'ripnum' => $result['ripnum'],
+
                     'relative' => $result['relative'],
+
                     'svazka_num' => $result['svazka_num'],
                     'book_num' => $result['book_num'],
                     'page_num' => $result['page_num'],
                     'page_punkt' => $page_punkt,
+
                     'comment' => $result['comment'],
                     'comment_book' => $result['comment_book'],
+
                     'book_id' => $result['book_id'],
                     'book_rip_style' => $result['book_rip_style'],
+
                     'filename' => $result['filename'],
                     'vopros' => $result['vopros'],
                     'updated_at' => $result['updated_at'],
@@ -134,91 +170,237 @@ class HelperCache {
     }
 
     /**
-     *
-     * @param array<string, mixed> $record
-     * @param Book|null $book
-     * @return array<string, mixed>
-     */
-    public static function updateSearchRecord(array $record, ?Book $book = null): array{
-        if ($book === null){
-            $book = Book::find()
-                ->andWhere(['id' => $record['book_id']])
-                ->one();
+    * Разбивает ФИО на составные части.
+    * @param string $FIO ФИО человека
+    * @return array{fam: string, nam: string, ot: string} Массив с составными частями ФИО
+    */
+    public static function splitFIO(string $FIO): array {
+        $fullName = trim(preg_replace('/\s+/u', ' ', $FIO));
+
+        // Фамильные части, которые могут входить в состав фамилии.
+        $surnamePrefixes = [
+            // Нидерландские / фламандские
+            'ван',
+            '’т',
+            'вандер',
+            'ванден',
+            'ванде',
+            'де',
+            'ден',
+            'дер',
+            'те',
+            'тен',
+            'тер',
+            'вер',
+            'хет',
+            'оп',
+            'ин',
+            'уйт',
+            'уйтер',
+            'тхое',
+            'ту',
+
+            // Немецкие / австрийские
+            'фон',
+            'цу',
+            'цур',
+            'фом',
+            'ам',
+            'аус',
+            'аусм',
+            'цум',
+
+            // Французские
+            'де',
+            'дю',
+            'дес',
+            'ла',
+            'ле',
+            'сен',
+            'сент',
+
+            // Итальянские
+            'да',
+            'дал',
+            'далла',
+            'далл',
+            'дей',
+            'дегли',
+            'дель',
+            'делла',
+            'делло',
+            'делли',
+            'ди',
+            'ли',
+            'ло',
+
+            // Испанские
+            'де',
+            'дель',
+            'лас',
+            'лос',
+            'ла',
+            'ле',
+
+            // Португальские
+            'да',
+            'даш',
+            'де',
+            'до',
+            'дос',
+
+            // Англо-кельтские
+            'мак',
+            'макк',
+            'мк',
+            'о’',
+            'фитц',
+
+            // Арабские / семитские
+            'ибн',
+            'бин',
+            'бен',
+            'бен',
+            'бн',
+            'сен',
+
+            // Другие часто встречающиеся
+            'аль',
+            'эль',
+            'иль',
+            'ибн',
+            'саинт',
+            'сент',
+        ];
+
+        $surnameEndings = [
+            'ов',
+            'ев',
+            'ёв',
+            'ин',
+            'ын',
+            'их',
+            'ых',
+            'ский',
+            'цкий',
+            'ской',
+            'цкой',
+            'ый',
+            'ий',
+            'ой',
+            'енко',
+            'ук',
+            'юк',
+            'чук',
+            'чак',
+            'як',
+            'ак',
+            'ко',
+            'ич',
+            'ович',
+            'евич',
+            'ишин',
+            'ышин',
+            'заде',
+            'ли',
+            'лы',
+            'лу',
+            'лю',
+            'оглу',
+            'кызы',
+            'ян',
+            'ан',
+            'янц',
+            'енц',
+            'унц',
+            'уни',
+            'дзе',
+            'швили',
+            'ури',
+            'ули',
+            'ани',
+            'иа',
+            'уа',
+            'ава',
+            'ая',
+            'ши',
+            'ели',
+            'ети',
+            'ати',
+            'ити',
+            'еску',
+            'ану',
+            'яну',
+            'ару',
+            'аш',
+            'зод',
+            'зода',
+            'улы',
+            'уулу',
+            'бa',
+            'ниа',
+        ];
+
+        $parts = preg_split('/\s+/u', $fullName);
+
+        /*
+        * Для классического русского ФИО:
+        * Иванов Иван Петрович
+        */
+        if (count($parts) <= 3) {
+            return [
+                'fam' => $parts[0] ?? '',
+                'nam' => $parts[1] ?? '',
+                'ot' => $parts[2] ?? '',
+            ];
         }
 
-        $value = [];
+        $family = '';
 
-        $value["fio_display"] = preg_replace('/\s+/', ' ', trim((string)$record['fio']));
-        $value["fam"] = $value["nam"] = $value["ot"] = '';
-        
-        if ($value["fio_display"]) {
-            $ff = explode(" ", $value["fio_display"]);
-            $value["fam"] = $ff[0];
+        foreach ($parts as $index => $part) {
+            $isPrefix = false;
 
-            if (sizeof($ff) > 1)
-                $value["nam"] = $ff[1];
-            if (sizeof($ff) > 2)
-                $value["ot"] = $ff[2];
-        }
-
-        $deadYearInf = \app\models\HelperLevoshkin::getDate((string)$record['death_date']);
-        $ripYearInf = \app\models\HelperLevoshkin::getDate((string)$record['rip_date']);
-
-        if ($record['numReg'] !== null)
-            $value["regnum"] = (string)$record['numReg'];
-        else
-            $value["regnum"] = (string)$record['numLiteral'];
-
-        $value["unknown_number"] = null;
-
-        if (preg_match("#№\s+([\d\\/]+)#", (string)$record['fio'], $m)) {
-            $value["unknown_number"] = $m[1];
-        } else {
-            if ($record['is_unknown']) {
-                if (preg_match("#.*?(\d[\d\\/]+).*?#", (string)$record['fio'], $m)) {
-                    $value["unknown_number"] = $m[1];
-                } else {
-                    if (preg_match("#.*?(\d+).*?#", (string)$record['fio'], $m)) {
-                        $value["unknown_number"] = $m[1];
-                    }
+            foreach ($surnamePrefixes as $prefix) {
+                if (mb_strtolower($part) === $prefix) {
+                    $family .= " $part";
+                    $isPrefix = true;
+                    break;
                 }
+            }
+
+            if (!$isPrefix && $family !== '') {
+                $family .= " $part";
+
+                return [
+                    'fam' => trim($family),
+                    'nam' => $parts[0],
+                    'ot' => implode(' ', array_slice($parts, $index + 1)),
+                ];
             }
         }
 
-        $basename = FileHelper::normalizePath((string)$record['filename']);
-        $basename = pathinfo($basename, PATHINFO_FILENAME);
-        $value["page_num"] = ltrim($basename, "0") ?: '0';
+        //Для двойных фамилий без дефиса
+        //Бас Басов Алексей Михайлович
+        $cleanedSurname = preg_replace('/[.,;\(\)]/', '', $parts[1]);
 
-        $value['record_id'] = $record['id'];
-        $value['cemetery_id'] = $book->cemetery_id;
-        $value['age'] = (string)$record['age'];
-        $value['age_int'] = ((int)$record['age'] > 200) ? null : (int)$record['age'];
-        $value['dead_year'] = $deadYearInf['year'];
-        $value['dead_month'] = $deadYearInf['month'];
-        $value['dead_day'] = $deadYearInf['day'];
-        $value['dead_date'] = $deadYearInf['date'];
-        $value['rip_year'] = $ripYearInf['year'];
-        $value['rip_month'] = $ripYearInf['month'];
-        $value['rip_day'] = $ripYearInf['day'];
-        $value['rip_date'] = $ripYearInf['date'];
-        $value['zags'] = (string)$record['zags'];
-        $value['rip_style'] = $record['rip_style'];
-        $value['unknown'] = $record['is_unknown'];
-        $value['docnum'] = (string)$record['docnum'];
-        $value['areanum'] = (string)$record['area_num'];
-        $value['rownum'] = (string)$record['row_num'];
-        $value['ripnum'] = (string)$record['rip_num'];
-        $value['relative'] = (string)$record['relative_fio'];
-        $value['svazka_num'] = $book->svazka;
-        $value['book_num'] = $book->number;
-        $value['comment'] = (string)$record['comment'];
-        $value['comment_book'] = (string)$book->comment;
-        $value['book_id'] = $book->id;
-        $value['book_rip_style'] = $book->rip_style;
-        $value['filename'] = (string)$record['filename'];
-        $value['vopros'] = (string)$record['vopros'];
-        $value['updated_at'] = $record['updated_at'];
+        foreach ($surnameEndings as $ending) {
+            if (str_ends_with(mb_strtolower($cleanedSurname), $ending)) {
+                return [
+                    'fam' => "{$parts[0]} {$parts[1]}",
+                    'nam' => $parts[2],
+                    'ot' => implode(' ', array_slice($parts, 3)),
+                ];
+            }
+        }
 
-        return $value;
+        /*
+        * Обычный случай с 4+ словами:
+        */
+
+        return [
+            'fam' => $parts[0],
+            'nam' => $parts[1],
+            'ot' => implode(' ', array_slice($parts, 2)),
+        ];
     }
 }

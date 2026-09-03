@@ -9,7 +9,6 @@ use Yii;
  *
  * @property int $id
  * @property int $cemetery_id
- * @property int|null $part_id
  * @property string|null $name
  * @property string|null $number
  * @property string|null $svazka
@@ -40,7 +39,7 @@ class Book extends \yii\db\ActiveRecord {
     public function rules() {
         return [
             [['cemetery_id', 'name', 'records'], 'required'],
-            [['cemetery_id', 'part_id', 'per_page', 'status', 'rip_style', 'dbg'], 'integer'],
+            [['cemetery_id', 'per_page', 'status', 'rip_style', 'dbg'], 'integer'],
             [['number', 'svazka'], 'string', 'max' => 128],
             [['year1', 'year2', 'records'], 'string', 'max' => 32],
             [['comment'], 'string'],
@@ -55,7 +54,6 @@ class Book extends \yii\db\ActiveRecord {
         return [
             'id' => 'ID',
             'cemetery_id' => 'Кладбище',
-            'part_id' => 'Партия',
             'name' => 'Название',
             'number' => 'Номер книги',
             'svazka' => 'Номер связки',

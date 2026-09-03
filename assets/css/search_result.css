@@ -1,0 +1,39 @@
+/* Контейнер таблицы с горизонтальным скроллом */
+.grid-view,
+.grid-view .table-responsive {
+    overflow-x: auto !important;
+    max-width: 100%;
+}
+
+/* Плавающий скроллбар внизу экрана */
+.floating-scrollbar {
+    position: fixed;
+    bottom: 0;
+    height: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    z-index: 9999;
+    background: rgba(240, 240, 240, 0.95);
+    border-top: 1px solid #ccc;
+}
+
+.floating-scrollbar-inner {
+    height: 1px;
+}
+
+/* Кастомный вид скроллбара */
+.floating-scrollbar::-webkit-scrollbar,
+.grid-view::-webkit-scrollbar {
+    height: 10px;
+}
+
+.floating-scrollbar::-webkit-scrollbar-thumb,
+.grid-view::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.floating-scrollbar::-webkit-scrollbar-thumb:hover,
+.grid-view::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

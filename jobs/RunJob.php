@@ -35,7 +35,7 @@ class RunJob extends BaseObject implements JobInterface
                 $exitCode = 1;
 
                 if($this->route === 'search-cache/index')
-                    $exitCode = Yii::$app->runAction($this->route, [ 0, $this->cacheKey ]);
+                    $exitCode = Yii::$app->runAction($this->route, [ $this->cacheKey ]);
                 else if($this->route === 'upload/index')
                     $exitCode = Yii::$app->runAction($this->route, [ $this->cacheKey ]);
 
