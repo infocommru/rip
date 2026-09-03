@@ -11,6 +11,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\helpers\FileHelper;
 use Yii;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -40,48 +41,23 @@ class PrintController extends Controller {
      * @return string
      * @param int $record_id
      */
-    public function actionIndex($record_id) {
-        $record = Record::find()
-            ->andWhere(['id' => $record_id])
-            ->one();
-
-        $book = Book::find()
-            ->andWhere(['id' => $record->book_id])
-            ->one();
-
-        $cemetery = Cemetery::find()
-            ->andWhere(['id' => $book->cemetery_id])
-            ->one();
+    public function actionIndex(int $record_id = 0): string {
+        $record = null;
+        
+        if($record_id){
+            $record = Record::find()
+                ->andWhere(['id' => $record_id])
+                ->one();
+        }
 
         $sdata = CacheRecords::find()->query(['term' => ['record_id' => $record_id]])->one();
         $user = \app\models\User::findIdentity(\Yii::$app->user->id);
 
         return $this->render('index', [
             'record' => $record,
-            'book' => $book,
             'sdata' => $sdata,
             'user' => $user,
-            'cemetery' => $cemetery
-        ]
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function actionNotFoundF2() {
-        $user = \app\models\User::findIdentity(\Yii::$app->user->id);
-
-        $params = [];
-        if (isset($_GET['params'])) {
-            $params = @unserialize(base64_decode($_GET['params']));
-        }
-
-        return $this->render('notfoundf2', [
-            'user' => $user,
-            'params' => $params
-        ]
-        );
+        ]);
     }
 
     /**
@@ -98,7 +74,7 @@ class PrintController extends Controller {
 
         $pdf = new \Mpdf\Mpdf([
             'fontDir' => array_merge($fontDirs, [
-                __DIR__ . '/../assets/fonts',
+                FileHelper::normalizePath(Yii::getAlias("@app/assets/fonts")),
             ]),
             'fontdata' => array_merge($fontData, [ // lowercase letters only in font key
                 'verdana' => [

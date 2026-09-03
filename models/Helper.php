@@ -3,80 +3,12 @@
 namespace app\models;
 
 class Helper {
-
-    /**
-     * @return array<int, string>
-     */
-    public static function getCemeteryList() {
-        $list = Cemetery::find()->all();
-        $result = [];
-        foreach ($list as $elem) {
-            $result[$elem->id] = $elem->name;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return array<int, string>
-     * @param int $cemetery_id
-     */
-
-    public static function getBookList($cemetery_id) {
-        $list = Book::find()->andWhere(['cemetery_id' => $cemetery_id])->all();
-        $result = [0 => "-"];
-        foreach ($list as $elem) {
-            $result[$elem->id] = $elem->name;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return array<string>
-     * @param string $filename
-     */
-    public static function readFileToList($filename) {
-        $result = [];
-        $fp = fopen($filename, 'r');
-        while (!feof($fp)) {
-            $line = trim(fgets($fp));
-            if ($line)
-                $result[] = $line;
-        }
-
-        return $result;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public static function regions() {
-        $filepath = "../data/spb_region.txt";
-        $lines = self::readFileToList($filepath);
-        return $lines;
-    }
-
     /**
      * @return string
-     * @param int $num
+     * @param string $date
      */
-    public static function regionToText($num) {
-        if ($num < 0)
-            return '-';
-
-        if (!isset($GLOBALS['regions']))
-            $GLOBALS['regions'] = self::regions();
-
-        return $GLOBALS['regions'][$num];
-    }
-
-    /**
-     * @return string
-     * @param string|null $date
-     */
-    public static function formatDate($date) {
-        $date = strtr($date ?? '', ['00:00:00' => '']);
+    public static function formatDate(string $date): string {
+        $date = strtr($date, ['00:00:00' => '']);
         $date = trim($date);
 
         if (preg_match("#(\d\d)\D(\d\d)\D(\d\d\d\d)#", $date, $m)) {
@@ -99,7 +31,7 @@ class Helper {
      * @param \Mpdf\Mpdf $mpdf
      * @param bool $sliceInSpace
      */
-    public static function truncateToWidth($text, $fontFile, $fontSize, $width, $mpdf = null, $sliceInSpace = false) {
+    public static function truncateToWidth(string $text, string $fontFile, int $fontSize, int $width, \Mpdf\Mpdf $mpdf = null, bool $sliceInSpace = false): string {
         $getStringWidthInPixels = function($text, $fontFile, $fontSize, $mpdf) {
             $mpdf->SetFont($fontFile, '', $fontSize);
             return $mpdf->GetStringWidth($text) * $mpdf->dpi / 25.4;
@@ -152,7 +84,7 @@ class Helper {
      * @param \Mpdf\Mpdf $mpdf
      * @param int $spaceRepeat
      */
-    public static function tablePrint($labelText, $data, $firstSize, $fullSize, $fontSize, $fontFile, $mpdf, $spaceRepeat = 20) {
+    public static function tablePrint(string $labelText, string $data, int $firstSize, int $fullSize, int $fontSize, string $fontFile, \Mpdf\Mpdf $mpdf, int $spaceRepeat = 20) {
         echo "<table><tr>";
 
         if($labelText !== ''){

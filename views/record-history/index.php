@@ -30,12 +30,24 @@ if ($user->role == 1) {
  * @param string $pole2
  * @return string
  */
-function td_table($data, $pole1, $pole2) {
+function td_content($data, $pole1, $pole2) {
     if ($pole1 == $pole2) {
-        return "<td>$data</td>";
+        return Html::encode($data);
     } else {
-        return "<td><span class='ne_ravno'>$data</span></td>";
+        return "<span class='ne_ravno'>" . Html::encode($data) . "</span>";
     }
+}
+
+function renderHistoryCell($field, $historyModel, $index, $history, $model) {
+    $info = unserialize($historyModel->info);
+    $historyLast = isset($history[$index + 1]) 
+        ? unserialize($history[$index + 1]->info) 
+        : $model->attributes;
+
+    $val1 = isset($historyLast[$field]) ? $historyLast[$field] : null;
+    $val2 = isset($info[$field]) ? $info[$field] : null;
+
+    return td_content($val2, $val1, $val2);
 }
 ?>
 <div class="record-history-index">
@@ -68,6 +80,8 @@ function td_table($data, $pole1, $pole2) {
             'age',
             'death_date',
             'rip_date',
+            'num_crem_reg',
+            'num_crem_account',
             'docnum',
             'zags',
             'area_num',
@@ -76,7 +90,6 @@ function td_table($data, $pole1, $pole2) {
             'relative_fio',
             'filename',
             'comment:ntext',
-            //'rip_style',
             [
                 'label' => 'Захоронение',
                 'value' => function ($model) {
@@ -89,76 +102,152 @@ function td_table($data, $pole1, $pole2) {
     <hr />
     <h4>Логи</h4>
     <?php if ($history): ?>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Юзер</th>
-                    <th>Изменено</th>
-                    <th>Номер</th>
-                    <th>ФИО</th>
-                    <th>Возраст</th>
-                    <th>Дата смерти</th>
-                    <th>Дата захоронения</th>
-                    <th>ЗАГС</th>
-                    <th>Номер участка</th>
-                    <th>Номер ряда</th>
-                    <th>Номер могилы</th>
-                    <th>Родственники</th>
-                    <th>Файл</th>
-                    <th>Комментарий</th>
-                    <th>Захоронение</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $history_list = $history;
-                for ($i = 0; $i < sizeof($history_list); $i++) {
-                    $one = $history_list[$i];
-                    $history_last = $model->attributes;
+        <?= GridView::widget([
+            'dataProvider' => new \yii\data\ArrayDataProvider([
+                'allModels' => $history,
+                'pagination' => false,
+            ]),
+            'summary' => false,
+            'columns' => [
+                [
+                    'class' => 'yii\grid\SerialColumn',
+                    'header' => '#',
+                ],
+                [
+                    'label' => 'Юзер',
+                    'value' => function ($historyModel) {
+                        return $historyModel->user ? $historyModel->user->username : '-';
+                    },
+                ],
+                [
+                    'label' => 'Изменено',
+                    'value' => function ($historyModel) {
+                        return date("Y-m-d H:i", $historyModel->updated_at);
+                    },
+                ],
+                [
+                    'label' => 'Номер',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        $info = unserialize($historyModel->info);
+                        $historyLast = isset($history[$index + 1]) 
+                            ? unserialize($history[$index + 1]->info) 
+                            : $model->attributes;
 
-                    if (isset($history[$i + 1]))
-                        $history_last = unserialize($history[$i + 1]->info);
+                        $regnum = $info['numReg'] ?: $info['numLiteral'];
+                        return td_content($regnum, $historyLast['numReg'], $info['numReg']);
+                    },
+                ],
+                [
+                    'label' => 'ФИО',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('fio', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Возраст',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('age', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Дата смерти',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('death_date', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Дата захоронения',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('rip_date', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Рег. № кремации',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('num_crem_reg', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => '№ счета по кремации',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('num_crem_account', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'ЗАГС',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('zags', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Номер участка',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('area_num', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Номер ряда',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('row_num', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Номер могилы',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('rip_num', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Родственники',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('relative_fio', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Файл',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('filename', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Комментарий',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        return renderHistoryCell('comment', $historyModel, $index, $history, $model);
+                    },
+                ],
+                [
+                    'label' => 'Захоронение',
+                    'format' => 'raw',
+                    'value' => function ($historyModel, $key, $index) use ($history, $model) {
+                        $info = unserialize($historyModel->info);
+                        $historyLast = isset($history[$index + 1]) 
+                            ? unserialize($history[$index + 1]->info) 
+                            : $model->attributes;
 
-                    $info = unserialize($one->info);
-                    $history = $info;
-                    $num = $i + 1;
-                    $login = $one->user->username;
-                    $updated = date("Y-m-d H:i", $one->updated_at);
+                        $ripStyleTypes = \app\models\Record::ripStyleTypes();
+                        $ripStyle = isset($ripStyleTypes[$info['rip_style']]) ? $ripStyleTypes[$info['rip_style']] : '';
 
-                    $regnum = $info['numReg'];
-                    if (!$regnum)
-                        $regnum = $info['numLiteral'];
-
-                    $ripStyle = \app\models\Record::ripStyleTypes()[$info['rip_style']];
-
-                    echo "<tr>";
-                    echo "<td>$num</td>";
-                    echo "<td>$login</td>";
-                    echo "<td>$updated</td>";
-                    //echo "<td>$regnum</td>";
-
-                    echo td_table($regnum, $history_last['numReg'], $history['numReg']);
-                    echo td_table($info['fio'], $history_last['fio'], $history['fio']);
-                    echo td_table($info['age'], $history_last['age'], $history['age']);
-                    echo td_table($info['death_date'], $history_last['death_date'], $history['death_date']);
-                    echo td_table($info['rip_date'], $history_last['rip_date'], $history['rip_date']);
-                    echo td_table($info['zags'], $history_last['zags'], $history['zags']);
-                    echo td_table($info['area_num'], $history_last['area_num'], $history['area_num']);
-                    echo td_table($info['row_num'], $history_last['row_num'], $history['row_num']);
-                    echo td_table($info['rip_num'], $history_last['rip_num'], $history['rip_num']);
-                    echo td_table($info['relative_fio'], $history_last['relative_fio'], $history['relative_fio']);
-                    echo td_table($info['filename'], $history_last['filename'], $history['filename']);
-                    echo td_table($info['comment'], $history_last['comment'], $history['comment']);
-                    echo td_table($ripStyle, $history_last['rip_style'], $history['rip_style']);
-                    echo "</tr>";
-                }
-                ?>
-            </tbody>
-        </table>
+                        return td_content($ripStyle, $historyLast['rip_style'], $info['rip_style']);
+                    },
+                ],
+            ],
+        ]);
+    ?>
     <?php else: ?>
-    <p>История изменений пуста</p>
+        <p>История изменений пуста</p>
     <?php endif; ?>
-
-
 </div>

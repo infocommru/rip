@@ -5,6 +5,8 @@ namespace app\controllers;
 use app\models\Record;
 use app\models\Book;
 use app\models\RecordHistory;
+use app\models\HelperCache;
+
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -168,7 +170,7 @@ class RecordController extends Controller {
                     $rc = Record::find()->andWhere(['id' => $_GET['record_id']])->one();
                     $rc->deleted = 0;
                     $rc->save();
-                    \app\models\HelperLevoshkin::updateSearchRecord($rc);
+                    HelperCache::updateSearchRecord($rc);
                     $flash = "Запись была успешно восстановлена";
                     break;
                 case "del":
@@ -252,12 +254,10 @@ class RecordController extends Controller {
                 $model->user_id = Yii::$app->user->id;
                 $model->updated_at = time();
                 $model->filename = str_replace('/', '\\', (string)$model->filename);
+                $model->vopros = 0;
 
-                if ($model->save()) {
-                    \app\models\HelperLevoshkin::update_unknown($book);
-                    $model->refresh();
-                    
-                    \app\models\HelperLevoshkin::updateSearchRecord($model);
+                if ($model->save()) {                   
+                    HelperCache::updateSearchRecord($model);
                     return $this->redirect(['view', 'id' => $model->id]);
                 }
             }
@@ -289,6 +289,7 @@ class RecordController extends Controller {
         $first = Record::find()->andWhere("user_id is null")->andWhere(['book_id' => $model->book_id])->orderBy("id")->one();
 
         if ($this->request->isPost && $model->load($this->request->post())) {
+            $model->fio = preg_replace('/\s+/', ' ', trim((string)$model->fio));
             $model->updated_at = time();
             $model->user_id = Yii::$app->user->id;
             $model->filename = strtr($model->filename, [
@@ -306,16 +307,13 @@ class RecordController extends Controller {
             $rHistory->save();
 
             if ($model->save()) {
-                \app\models\HelperLevoshkin::update_unknown($book);
-                $model->refresh();
-                \app\models\HelperLevoshkin::updateSearchRecord($model);
+                HelperCache::updateSearchRecord($model);
 
                 $id_next = $next ? $next->id : $model->id;
-
                 $pnum = 1;
-                if (($next) && ($model->filename == $next->filename)) {
+
+                if (($next) && ($model->filename == $next->filename))
                     $pnum = $_POST['pageNum'];
-                }
             }
         }
 
@@ -339,6 +337,8 @@ class RecordController extends Controller {
             'Возраст',
             'Дата смерти',
             'Дата захоронения',
+            'Регистрационный № кремации',
+            '№ счета по кремации',
             'Номер документа ЗАГС',
             'ЗАГС',
             'Номер участка',
@@ -356,6 +356,8 @@ class RecordController extends Controller {
             'Age',
             'Death_Date',
             'RIP_Date',
+            'num_crem_reg',
+            'num_crem_account',
             'DocNum',
             'ZAGS',
             'Area_Num',
@@ -383,6 +385,8 @@ class RecordController extends Controller {
             $one[] = $elem->age;
             $one[] = $elem->death_date;
             $one[] = $elem->rip_date;
+            $one[] = $elem->num_crem_reg;
+            $one[] = $elem->num_crem_account;
             $one[] = $elem->docnum;
             $one[] = $elem->zags;
             $one[] = $elem->area_num;

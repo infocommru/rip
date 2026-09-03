@@ -4,26 +4,23 @@ namespace app\controllers;
 
 use app\models\Record;
 use app\models\Book;
+use app\models\Cemetery;
+use app\models\HelperImg;
+use app\models\HelperCache;
+
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \avadim\FastExcelWriter\Excel;
-use app\models\HelperImg;
+use yii\web\Response;
 use Yii;
 
 /**
  * RecordController implements the CRUD actions for Record model.
  */
 class SearchController extends Controller {
-
-    /**
-     *
-     * @var integer $searchLimit
-     */
-    public $searchLimit = 100;
-
     /**
      * @inheritDoc
      */
@@ -204,7 +201,7 @@ class SearchController extends Controller {
      * @param string $name_var
      * @return array<string, mixed>
      */
-    protected function searchValue($switch ,$search_string, $name_var){
+    protected function searchValue(int $switch, string $search_string, string $name_var): array{
         switch ($switch) {
             case 1:
                 $condition = self::searchTermConditions($search_string, $name_var);
@@ -225,50 +222,49 @@ class SearchController extends Controller {
 
         return $condition;
     }
-    
+
     /**
-     *
-     * @param int $c_id
-     * @return false|array{0: array<int, mixed>, 1: int}
+     * Формирует условие для поиска по регулярному выражению
+     * @param array<string, mixed> $search
+     * @return array<string, mixed>|false
      */
-    protected function searchCemetery($c_id) {
-        if (empty($_GET)) {
+    protected function searchCemetery(array $search): array | bool{
+        if (empty($search)) {
             return false;
         }
 
-        $query = \app\models\CacheRecords::find();
 		$elasticQuery = [];
-        $elasticQuery['bool']['must'][] = ['term' => ['cemetery_id' => $c_id]];
+        $elasticQuery['bool']['must'][] = ['term' => ['cemetery_id' => $search['cemetery']]];
 
-        if ($_GET['regnum']) {
-            $condition = self::searchTermConditions($_GET['regnum'], 'regnum');
+        if ($search['regnum']) {
+            $condition = self::searchTermConditions($search['regnum'], 'regnum');
             $elasticQuery['bool']['must'][] = $condition;
         }
 
-        if ($_GET['fam']) {
-            $elasticQuery['bool']['must'][] = self::searchValue($_GET['fam_cont'], $_GET['fam'], 'fam');
+        if ($search['fam']) {
+            $elasticQuery['bool']['must'][] = self::searchValue($search['fam_cont'], $search['fam'], 'fam');
         }
 
-        if ($_GET['nam']) {
-            $elasticQuery['bool']['must'][] = self::searchValue($_GET['nam_cont'], $_GET['nam'], 'nam');
+        if ($search['nam']) {
+            $elasticQuery['bool']['must'][] = self::searchValue($search['nam_cont'], $search['nam'], 'nam');
         }
 
-        if ($_GET['ot']) {
-            $elasticQuery['bool']['must'][] = self::searchValue($_GET['ot_cont'], $_GET['ot'], 'ot');
+        if ($search['ot']) {
+            $elasticQuery['bool']['must'][] = self::searchValue($search['ot_cont'], $search['ot'], 'ot');
         }
 
-        if (isset($_GET['unknown'])) {
+        if ($search['unknown']) {
         	$elasticQuery['bool']['must'][] = ['term' => ['unknown' => 1]];
         }
 
-        if ($_GET['unknown_number']) {
-            $elasticQuery['bool']['must'][] = self::searchTermConditions( $_GET['unknown_number'], 'unknown_number');
+        if ($search['unknown_number']) {
+            $elasticQuery['bool']['must'][] = self::searchTermConditions( $search['unknown_number'], 'unknown_number');
         }
 
-        if ($_GET['age']) {
-            $age = intval($_GET['age']);
+        if ($search['age']) {
+            $age = intval($search['age']);
 
-            switch (intval($_GET['age_cmp'])) {
+            switch (intval($search['age_cmp'])) {
                 case 3:
                     $condition = ['range' => ['age_int' => ['gt' => $age]]];
                     break;
@@ -281,10 +277,12 @@ class SearchController extends Controller {
             $elasticQuery['bool']['must'][] = $condition;
         }
 
-        if ($_GET['rip_style']) {
-            $rStyle = intval($_GET['rip_style']);
+        if ($search['rip_style']) {
+            $rStyle = intval($search['rip_style']);
 
             switch ($rStyle) {
+                case 4:
+                case 3:
                 case 2:
                 case 1:
                 	$elasticQuery['bool']['must'][] = [
@@ -308,168 +306,233 @@ class SearchController extends Controller {
             }
         }
 
-        if ($_GET['dead_y']) {
-            $dead_year = intval($_GET['dead_y']);
-            $dead_m = intval($_GET['dead_m']);
-            $dead_d = intval($_GET['dead_d']);
+        if (!empty($search['dead_y'])) {
+            $dead_year = abs(intval($search['dead_y']));
 
-            $dead_date = ($dead_d < 10 ? '0' . $dead_d : $dead_d) . '/' . ($dead_m < 10 ? '0' . $dead_m : $dead_m) . '/' . $dead_year;
+            $dead_m = (!empty($search['dead_m']) && $search['dead_m'] >= 1 && $search['dead_m'] <= 12) 
+                ? abs(intval($search['dead_m']))
+                : null;
 
-            switch (intval($_GET['dead_year_cmp'])) {
-                case 3:
+            $dead_d = (!empty($search['dead_d']) && $search['dead_d'] >= 1 && $search['dead_d'] <= 31) 
+                ? abs(intval($search['dead_d']))
+                : null;
+
+            $cmp = isset($search['dead_year_cmp']) ? intval($search['dead_year_cmp']) : 0;
+
+            switch ($cmp) {
+                case 3: // Позже даты
+                    $m = $dead_m ? sprintf('%02d', $dead_m) : '12';
+                    $d = $dead_d ? sprintf('%02d', $dead_d) : '31';
+                    $dead_date = sprintf('%s/%s/%04d', $d, $m, $dead_year);
                     $condition = ['range' => ['dead_date.date' => ['gt' => $dead_date]]];
                     break;
-                case 2:
+
+                case 2: // Раньше даты
+                    $m = $dead_m ? sprintf('%02d', $dead_m) : '01';
+                    $d = $dead_d ? sprintf('%02d', $dead_d) : '01';
+                    $dead_date = sprintf('%s/%s/%04d', $d, $m, $dead_year);
                     $condition = ['range' => ['dead_date.date' => ['lt' => $dead_date]]];
                     break;
-                default:
-                	$condition = ['bool' => ['must' => []]];
-                	$condition['bool']['must'][] = ['term' => ['dead_year' => $dead_year]];
-                	
-                    if ($dead_m)
-                        $condition['bool']['must'][] = ['term' => ['dead_month' => $dead_m]];
-                    if ($dead_d)
-                        $condition['bool']['must'][] = ['term' => ['dead_day' => $dead_d]];
+
+                default: // Точное совпадение по отдельным полям
+                    $mustConditions = [
+                        ['term' => ['dead_year' => $dead_year]]
+                    ];
+
+                    if ($dead_m) {
+                        $mustConditions[] = ['term' => ['dead_month' => $dead_m]];
+                    }
+                    if ($dead_d) {
+                        $mustConditions[] = ['term' => ['dead_day' => $dead_d]];
+                    }
+
+                    $condition = ['bool' => ['must' => $mustConditions]];
+                    break;
             }
-            
+
             $elasticQuery['bool']['must'][] = $condition;
         }
 
-        if ($_GET['rip_y']) {
-            $rip_year = intval($_GET['rip_y']);
-            $rip_m = intval($_GET['rip_m']);
-            $rip_d = intval($_GET['rip_d']);
+        if (!empty($search['rip_y'])) {
+            $rip_year = abs(intval($search['rip_y']));
 
-            $rip_date = ($rip_d < 10 ? '0' . $rip_d : $rip_d) . '/' . ($rip_m < 10 ? '0' . $rip_m : $rip_m) . '/' . $rip_year;
+            $rip_m = (!empty($search['rip_m']) && $search['rip_m'] >= 1 && $search['rip_m'] <= 12) 
+                ? abs(intval($search['rip_m']))
+                : null;
 
-            switch (intval($_GET['rip_year_cmp'])) {
-                case 3:
+            $rip_d = (!empty($search['rip_d']) && $search['rip_d'] >= 1 && $search['rip_d'] <= 31) 
+                ? abs(intval($search['rip_d']))
+                : null;
+
+            $cmp = isset($search['rip_year_cmp']) ? intval($search['rip_year_cmp']) : 0;
+
+            switch ($cmp) {
+                case 3: // Позже даты
+                    $m = $rip_m ? sprintf('%02d', $rip_m) : '12';
+                    $d = $rip_d ? sprintf('%02d', $rip_d) : '31';
+                    $rip_date = sprintf('%s/%s/%04d', $d, $m, $rip_year);
                     $condition = ['range' => ['rip_date.date' => ['gt' => $rip_date]]];
                     break;
-                case 2:
+
+                case 2: // Раньше даты
+                    $m = $rip_m ? sprintf('%02d', $rip_m) : '01';
+                    $d = $rip_d ? sprintf('%02d', $rip_d) : '01';
+                    $rip_date = sprintf('%s/%s/%04d', $d, $m, $rip_year);
                     $condition = ['range' => ['rip_date.date' => ['lt' => $rip_date]]];
                     break;
-                default:
-                	$condition = ['bool' => ['must' => []]];
-                    $condition['bool']['must'][] = ['term' => ['rip_year' => $rip_year]];
-                    
+
+                default: // Точное совпадение по отдельным полям
+                    $mustConditions = [
+                        ['term' => ['rip_year' => $rip_year]]
+                    ];
+
                     if ($rip_m)
-                        $condition['bool']['must'][] = ['term' => ['rip_month' => $rip_m]];
+                        $mustConditions[] = ['term' => ['rip_month' => $rip_m]];
                     if ($rip_d)
-                    	$condition['bool']['must'][] = ['term' => ['rip_day' => $rip_d]];
+                        $mustConditions[] = ['term' => ['rip_day' => $rip_d]];
+
+                    $condition = ['bool' => ['must' => $mustConditions]];
+                    break;
             }
-            
+
             $elasticQuery['bool']['must'][] = $condition;
         }
-        
-        if ($_GET['zags']){
-            $elasticQuery['bool']['must'][] = self::searchValue($_GET['zags_cont'], $_GET['zags'], 'zags');
+
+        if ($search['num_crem_reg']){
+            $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_reg_cont'], $search['num_crem_reg'], 'num_crem_reg');
+        }
+
+        if ($search['num_crem_account']){
+            $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_account_cont'], $search['num_crem_account'], 'num_crem_account');
         }
         
-        if ($_GET['docnum']) {
-            $elasticQuery['bool']['must'][] = self::searchTermConditions($_GET['docnum'], 'docnum');
+        if ($search['zags']){
+            $elasticQuery['bool']['must'][] = self::searchValue($search['zags_cont'], $search['zags'], 'zags');
         }
         
-        if ($_GET['comment']) {
-            $elasticQuery['bool']['must'][] = self::searchTermConditions($_GET['comment'], 'comment');
+        if ($search['docnum']) {
+            $elasticQuery['bool']['must'][] = self::searchTermConditions($search['docnum'], 'docnum');
+        }
+        
+        if ($search['comment']) {
+            $elasticQuery['bool']['must'][] = self::searchTermConditions($search['comment'], 'comment');
         }
 
-        if (isset($_GET['ext_search'])) {
-            if ($_GET['areanum']) {
-                $elasticQuery['bool']['must'][] = self::searchValue($_GET['area_cont'], $_GET['areanum'], 'areanum');
+        if ($search['ext_search']) {
+            if ($search['areanum']) {
+                $elasticQuery['bool']['must'][] = self::searchValue($search['area_cont'], $search['areanum'], 'areanum');
             }
 
-            if ($_GET['rownum']) {
-                $elasticQuery['bool']['must'][] = self::searchValue($_GET['row_cont'], $_GET['rownum'], 'rownum');
+            if ($search['rownum']) {
+                $elasticQuery['bool']['must'][] = self::searchValue($search['row_cont'], $search['rownum'], 'rownum');
             }
 
-            if ($_GET['ripnum']) {
-                $elasticQuery['bool']['must'][] = self::searchValue($_GET['rip_cont'], $_GET['ripnum'], 'ripnum');
+            if ($search['ripnum']) {
+                $elasticQuery['bool']['must'][] = self::searchValue($search['rip_cont'], $search['ripnum'], 'ripnum');
             }
 
-            if ($_GET['rel']) {
-            	$elasticQuery['bool']['must'][] = self::searchTermConditions($_GET['rel'], 'relative');
-            }
-        }
-
-    	$query->query($elasticQuery);
-        $count = $query->count();
-
-        $curpage = 1;
-        if (isset($_GET['pager'])) {
-            $pages = explode(';', $_GET['pager']);
-            $curpage = 1;
-            foreach ($pages as $p) {
-                $pp = explode(",", $p);
-                if ($pp[0] == $c_id)
-                    $curpage = $pp[1];
+            if ($search['rel']) {
+            	$elasticQuery['bool']['must'][] = self::searchTermConditions($search['rel'], 'relative');
             }
         }
 
-        $offset = ($curpage - 1) * $this->searchLimit;
-       
-        $result = $query->orderBy(['_score' => SORT_DESC, 'record_id' => SORT_DESC])
-        	->offset($offset)
-			->limit($this->searchLimit)
-			->asArray()
-			->all();
-			
-        return [$result, $count];
+        return $elasticQuery;
     }
-
+    
     /**
-     *
+     * 
+     * @param array<string, mixed> $search
+     * @param int $page
+     * @param int $paginator
      * @return string
      */
-    public function actionIndex() {
-        $search_data = false;
+    public function actionShowSearchResult(array $search, int $page = 1, int $paginator = 100): string 
+    {
+        $found = $this->searchCemetery($search);
 
-        if (isset($_GET['fam'])) {
-            $search_data = [];
-            $cemeteries = \app\models\Cemetery::find()
-                ->orderBy("name");
+        $query = \app\models\CacheRecords::find()
+            ->query($found)
+            ->orderBy(['_score' => SORT_DESC, 'record_id' => SORT_DESC]);
 
-            if ($_GET['cemetery'] != '0') {
-                $cemeteries->andWhere(['id' => $_GET['cemetery']]);
-            }
+        $count = $query->count();
 
-            $cemeteries = $cemeteries->all();
+        // 4. Передаем именно $query в ActiveDataProvider
+        $dataProvider = new \yii\data\ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'page' => $page - 1,       // Yii2 считает страницы с 0
+                'pageSize' => $paginator,
+                'pageParam' => 'page',
+            ],
+        ]);
 
-            foreach ($cemeteries as $cemetery) {
-                $data = $this->searchCemetery($cemetery->id);
-                $counter = $data[1];
-                $data = $data[0];
-                
-                if ($data) {
-                    $search_data[] = [
-                        'id' => $cemetery->id,
-                        'name' => $cemetery->name,
-                        'counter' => $counter,
-                        'data' => $data
-                    ];
-                }
-            }
-        }
-
-        return $this->render('index', [
-        	'search_data' => $search_data
+        // 5. Используем renderAjax для передачи фрагмента во вкладку
+        return $this->renderAjax('search_result', [
+            'dataProvider' => $dataProvider,
+            'count_result' => $count,
+            'search' => $search,
         ]);
     }
 
     /**
-     *
-     * @param int $c_id
-     * @return array{0: array<int, array<int, mixed>>, 1: array<int, string>}
-     */
-    private function exportData(int $c_id): array {
-        $cemetery = \app\models\Cemetery::find()->andWhere(['id' => $c_id])->one();
+    * @param array<string, mixed> $search
+    * @return array<int, array{
+    *     id: int,
+    *     name: string,
+    *     exists: bool
+    * }>
+    */
+    public function actionFoundResultExists(array $search): array{
+        $result = [];
 
-        if (isset($_GET['pager'])) {
-            unset($_GET['pager']);
+        if($search['cemetery'] == 0){
+            $cemeteries = Cemetery::find()->select(['id', 'name'])->orderBy('name')->all();
+
+            foreach($cemeteries as $cemetery){
+                $search['cemetery'] = $cemetery->id;
+                $found = $this->searchCemetery($search);
+                $query = \app\models\CacheRecords::find();
+                
+                $search['cemetery'] =  $cemetery->id;
+                $result[] = ['id' => $cemetery->id, 'name' => $cemetery->name, 'exists' => $query->query($found)->exists() ];
+            }
+        }
+        else{
+            $cemetery = Cemetery::find()->where(['id' => $search['cemetery']])->one();
+
+            if(!$cemetery)
+                return [];
+
+            $found = $this->searchCemetery($search);
+            $query = \app\models\CacheRecords::find();
+
+            $result[] = ['id' => $cemetery->id, 'name' => $cemetery->name, 'exists' => $query->query($found)->exists() ];
         }
 
-        $this->searchLimit = 10000;
-        $data = $this->searchCemetery($cemetery->id);
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function actionIndex(): string {
+        return $this->render('index', []);
+    }
+
+    /**
+     * @param array<string, mixed> $search
+     * @return array{0: array<int, array<int, mixed>>, 1: array<int, string>}
+     */
+    private function exportData(array $search): array {
+        $query = $this->searchCemetery($search);
+
+        $data = \app\models\CacheRecords::find()
+            ->query($query)
+            ->orderBy(['_score' => SORT_DESC, 'record_id' => SORT_DESC])
+            ->limit(10000)
+            ->asArray()
+            ->all();
     
         $header = [
             'Номер записи',
@@ -477,6 +540,8 @@ class SearchController extends Controller {
             'Возраст',
             'Дата смерти',
             'Дата захоронения',
+            'Регистрационный № кремации',
+            '№ счета по кремации',
             'Документ',
             'ЗАГС',
             'Захоронение',
@@ -489,16 +554,18 @@ class SearchController extends Controller {
 
         $data_all = [];
 
-        foreach ($data[0] as $elem) {
+        foreach ($data as $elem) {
             $one = [];
 
-            $one[] = $elem['_source']['regnum'];
-            $one[] = $elem['_source']['fio_display'];
-            $one[] = $elem['_source']['age'];
-            $one[] = $elem['_source']['dead_date'];
-            $one[] = $elem['_source']['rip_date'];
-            $one[] = $elem['_source']['docnum'];
-            $one[] = $elem['_source']['zags'];
+            $one[] = $elem['_source']['regnum'] ?? '';
+            $one[] = $elem['_source']['fio_display'] ?? '';
+            $one[] = $elem['_source']['age'] ?? '';
+            $one[] = $elem['_source']['dead_date'] ?? '';
+            $one[] = $elem['_source']['rip_date'] ?? '';
+            $one[] = $elem['_source']['num_crem_reg'] ?? '';
+            $one[] = $elem['_source']['num_crem_account'] ?? '';
+            $one[] = $elem['_source']['docnum'] ?? '';
+            $one[] = $elem['_source']['zags'] ?? '';
             $one[] = $elem['_source']['rip_style'] == 1 ? "Гроб" : "Урна";
             $one[] = $elem['_source']['areanum'] ?? '';
             $one[] = $elem['_source']['rownum'] ?? '';
@@ -518,12 +585,11 @@ class SearchController extends Controller {
     }
 
     /**
-     *
-     * @param int $c_id
+     * @param array<string, mixed> $search
      * @return void
      */
-    public function actionExport(int $c_id): void {
-        $data = $this->exportData($c_id);
+    public function actionExport(array $search): void {
+        $data = $this->exportData($search);
 
         $excel = Excel::create();
         $sheet = $excel->sheet();
@@ -546,7 +612,8 @@ class SearchController extends Controller {
         $record = Record::find()->andWhere(['id' => $record_id])->one();
         $record->vopros = 1;
         $record->save();
-        echo $record->fio;
+
+        HelperCache::updateSearchRecord($record);
     }
 
     /**

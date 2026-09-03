@@ -18,7 +18,7 @@ if (preg_match("#.*?(\d\d\d\d).*?#", $rip_date, $m)) {
 if (isset($_GET['dead_year']))
     $rip_year = $_GET['dead_year'];
 
-$vidano = trim(strtr($_GET['vidano'], ["  " => " "]));
+$vidano = trim(strtr("{$_GET['vidano-fam']} {$_GET['vidano-nam']} {$_GET['vidano-ot']}", ["  " => " "]));
 $vd = explode(" ", $vidano);
 $vd_len = mb_strlen($vidano, 'utf8');
 
@@ -60,7 +60,7 @@ $normal = 'verdana';
                             <?= $_GET['nn'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span> от
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;
-                            <?= $_GET['date'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= date('d.m.Y', strtotime($_GET['date'])) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span>
                     </div>
                 </td>
@@ -103,7 +103,7 @@ $normal = 'verdana';
                 о захоронении
             </div>
             <?php
-                Helper::tablePrint('', $_GET['fio'], 545, 545, 7, $normal, $mpdfObject, 10);
+                Helper::tablePrint('', "{$_GET['fam']} {$_GET['nam']} {$_GET['ot']}", 545, 545, 7, $normal, $mpdfObject, 10);
             ?>
             <div class="hinttext">
                 (фамилия, имя, отчество полностью)
@@ -119,16 +119,14 @@ $normal = 'verdana';
                 </span> году
             </div>
             <?php
-                $string = trim($_GET['comment']);
-                Helper::tablePrint('', $string, 545, 545, 7, $normal, $mpdfObject, 10);
+                if (isset($_GET['print_comment'])){
+                    $string = trim($_GET['comment']);
+                    Helper::tablePrint('', $string, 545, 545, 7, $normal, $mpdfObject, 10);
+                }
             ?>
-            <?php if (isset($_GET['print_comment'])): ?>
-
-                <div class="comment_ips"> 
-                    Справка сформирована на основе ИПС "Поиск захоронений"
-                </div>
-
-            <?php endif; ?>
+            <div class="comment_ips"> 
+                Справка сформирована на основе ИПС "Поиск захоронений"
+            </div>
 
             <div class="worker">
                 Специалист по работе с архивом 

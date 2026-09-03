@@ -2,6 +2,9 @@
 
 use app\assets\OpenSeadragonAsset;
 
+/** @var yii\web\View $this */
+/** @var string $path */
+
 $assetBundle = OpenSeadragonAsset::register($this);
 $imagesUrl = $assetBundle->baseUrl . '/images/';
 ?>

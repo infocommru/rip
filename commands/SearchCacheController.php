@@ -9,7 +9,6 @@ use app\models\Book;
 use app\models\Helper;
 use app\models\Cemetery;
 use app\models\BookUpload;
-use app\models\HelperLevoshkin;
 use app\models\CacheRecords;
 
 class SearchCacheController extends Controller {
@@ -18,12 +17,8 @@ class SearchCacheController extends Controller {
      * Creates the search index.
      * * @return void
      */
-	private function createIndex(): void {
-		$db = CacheRecords::getDb();
-		$command = $db->createCommand();
-
-		if ($command->indexExists(\app\models\CacheRecords::index()))
-			$command->deleteIndex(\app\models\CacheRecords::index());
+	private function createIndex(string $index): void {
+		$command = CacheRecords::getDb()->createCommand();
 
 		$standard_type = [
 			'type' => 'text', 
@@ -45,7 +40,7 @@ class SearchCacheController extends Controller {
 			]
 		];
 
-		$command->createIndex(\app\models\CacheRecords::index(), [
+		$command->createIndex($index, [
 			'settings' => [
 				'number_of_shards' => 1,
 				'number_of_replicas' => 0,
@@ -81,6 +76,9 @@ class SearchCacheController extends Controller {
 				    	'type' => 'date', 
 				    	'format' => 'dd/MM/yyyy',
 				    	'ignore_malformed' => true]]],
+
+					'num_crem_reg' => $standard_type,
+            		'num_crem_account' => $standard_type,
 				    
 				    'zags' => $standard_type,
 				    'rip_style' => ['type' => 'integer'],
@@ -117,22 +115,12 @@ class SearchCacheController extends Controller {
 	/**
      * Creates the search index.
      * @return void
-	 * @param int $cemetery_id
 	 * @param string|null $cacheKey
      */
-    public function actionIndex(int $cemetery_id = 0, ?string $cacheKey = null): void {
-        if ($cemetery_id) {
-            $cemeteries = Cemetery::find()
-				->andWhere(['id' => $cemetery_id])
-				->andWhere(['deleted' => 0])
-				->all();
-
-			\app\models\HelperCache::deleteCemetery($cemetery_id);
-		}
-		else {
-			$cemeteries = Cemetery::find()->andWhere(['deleted' => 0])->orderBy('id')->all();
-			$this->createIndex();
-		}
+    public function actionIndex(?string $cacheKey = null): void {
+		$newIndex = CacheRecords::index() . '_'. date('Ymd_His');
+		$cemeteries = Cemetery::find()->andWhere(['deleted' => 0])->orderBy('id')->all();
+		$this->createIndex($newIndex);
 
 		$totalCemeteries = count($cemeteries);
 
@@ -161,7 +149,35 @@ class SearchCacheController extends Controller {
 				->andWhere(['cemetery_id' => $cemeteries[$count]->id])
 				->all();
 
-            \app\models\HelperCache::updateCache($books, $updateStatus);
+            \app\models\HelperCache::updateCache($books, $updateStatus, $newIndex);
        	}
+
+		$command = CacheRecords::getDb()->createCommand();
+		$oldIndex = $command->getIndexesByAlias(CacheRecords::index())[0] ?? '';
+
+		if($oldIndex){
+			$command->aliasActions([
+				[
+					'remove' => [
+						'index' => $oldIndex,
+						'alias' => CacheRecords::index(),
+					],
+				],
+				[
+					'add' => [
+						'index' => $newIndex,
+						'alias' => CacheRecords::index(),
+					],
+				],
+			]);
+
+			$command->deleteIndex($oldIndex);
+		}
+		else {
+			if($command->indexExists(CacheRecords::index()))
+				$command->deleteIndex(CacheRecords::index());
+			
+			$command->addAlias($newIndex, CacheRecords::index());
+		}
     }
 }

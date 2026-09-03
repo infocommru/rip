@@ -25,13 +25,11 @@ use Yii;
  * @property string $relative_fio
  * @property string $filename
  * @property string $comment
+ * @property string $num_crem_reg
+ * @property string $num_crem_account
  * @property int $rip_style
  * @property int|null $updated_at
  * @property int $vopros
- * @property int $is_unknown
- * @property int $gos
- * @property int $dubl
- * @property int $bad_flag
  * @property int $deleted
  *
  * @property Book $book
@@ -53,10 +51,10 @@ class Record extends \yii\db\ActiveRecord {
         return [
             [['book_id'], 'required'],
             [['book_id', 'numReg', 'rip_style', 'updated_at',
-            'user_id', 'vopros', 'is_unknown'], 'integer'],
+            'user_id', 'vopros'], 'integer'],
             [['comment'], 'string'],
             [['numLiteral', 'death_date', 'rip_date'], 'string', 'max' => 32],
-            [['fio', 'zags', 'age', 'area_num', 'row_num', 'rip_num', 'docnum'], 'string', 'max' => 128],
+            [['fio', 'zags', 'age', 'area_num', 'row_num', 'rip_num', 'docnum', 'num_crem_reg', 'num_crem_account'], 'string', 'max' => 128],
             [['relative_fio', 'filename'], 'string', 'max' => 256],
             [['book_id'], 'exist', 'skipOnError' => true, 'targetClass' => Book::class, 'targetAttribute' => ['book_id' => 'id']],
         ];
@@ -86,10 +84,10 @@ class Record extends \yii\db\ActiveRecord {
             'rip_style' => 'Захоронение',
             'updated_at' => 'Обновлено',
             'vopros' => 'Есть вопросы',
-            'is_unknown' => 'Неизвестный',
             'comment' => 'Комментарий',
-            'gos' => 'Госсчет',
             'deleted' => 'Удалено',
+            'num_crem_reg' => 'Рег. № кремации',
+            'num_crem_account' => '№ счета по кремации',
         ];
     }
 
@@ -116,6 +114,7 @@ class Record extends \yii\db\ActiveRecord {
      */
     public static function ripStyleTypes() {
         $types = [
+            0 => "-",
             1 => "Гроб",
             2 => "Урна",
             3 => "Урна, стена",

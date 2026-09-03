@@ -38,7 +38,7 @@ class ImageViewerController extends Controller {
      * @param string $path
      * @return string
      */
-    public function actionIndex($path): string {
+    public function actionIndex(string $path): string {
         $this->layout = 'viewer';
 
         $filePath = FileHelper::normalizePath(Yii::getAlias("@images/" . $path));

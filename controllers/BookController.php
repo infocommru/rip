@@ -4,7 +4,9 @@ namespace app\controllers;
 
 use app\models\Record;
 use app\models\Book;
-use app\models\HelperLevoshkin;
+use app\models\HelperImg;
+use app\models\HelperCache;
+
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -14,8 +16,6 @@ use \avadim\FastExcelReader\Excel;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\web\UploadedFile;
-use app\models\HelperImg;
-use app\models\HelperCache;
 
 /**
  * BookController implements the CRUD actions for Book model.
@@ -390,7 +390,12 @@ class BookController extends Controller {
         return $this->redirect(\Yii::$app->request->referrer);
     }
 
-    public function actionGetImagesPath($book_id){
+    /**
+     * Displays a single Book model.
+     * @param int $book_id ID
+     * @return list<array<string, array<string, string>|string>>
+     */
+    public function actionGetImagesPath(int $book_id): array {
         $book = Book::findOne($book_id);
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
