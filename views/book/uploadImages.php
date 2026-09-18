@@ -161,7 +161,9 @@ if(!$titlePath['path'])
                             . Html::endForm();
                         },
                         'showscan' => function ($url, $record) use ($titlePath) {
-                            if(!$titlePath['existed'] || is_dir(FileHelper::normalizePath(Yii::getAlias("@images/$record->filename"))))
+                            if(!$titlePath['existed']
+                                || !is_file(FileHelper::normalizePath(Yii::getAlias("@images/$record->filename")))
+                                || is_dir(FileHelper::normalizePath(Yii::getAlias("@images/$record->filename"))))
                                 return '';
 
                             return Html::a(

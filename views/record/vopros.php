@@ -25,7 +25,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'id',
-            //'book_id',
             [
                 'label' => 'Книга',
                 'value' => function ($model) {
@@ -46,16 +45,16 @@ $this->params['breadcrumbs'][] = $this->title;
             'age',
             'death_date',
             'rip_date',
+            'num_crem_reg',
+            'num_crem_account',
             'docnum',
             'zags',
-            //'riper',
             'area_num',
             'row_num',
             'rip_num',
             'relative_fio',
             'filename',
             'comment:ntext',
-            //'rip_style',
             [
                 'label' => 'Захоронение',
                 'value' => function ($model) {

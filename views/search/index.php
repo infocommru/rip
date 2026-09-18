@@ -273,10 +273,9 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
 
             <hr />
 
-            <div class="row d-none" id="search_results">
+            <div class="row d-none" id="search_results" style="width:100vw; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw;">
                 <div class="col-sm-12">
-                    <ul id="tabs" style="padding-left: 0px;">
-                    </ul>
+                    <ul id="tabs" style="padding-left: 0px;"></ul>
                 </div>
             </div>
         </div>
@@ -508,5 +507,15 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
 
             return isValid;
         }
+
+        // Обработка нажатия Enter в полях ввода для выполнения поиска
+        document.querySelectorAll('#filter-container input[type="text"]').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Предотвращаем отправку формы (если она есть)
+                    document.getElementById('find_results').click();
+                }
+            });
+        });
     });
 </script>

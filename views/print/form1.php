@@ -22,9 +22,8 @@ $number = str_repeat('&nbsp;', 10) . $number . str_repeat('&nbsp;', 20);
 $svid = str_repeat('&nbsp;', 10) . $svid . str_repeat('&nbsp;', 20);
 
 
-$vidano = trim(strtr("{$_GET['vidano-fam']} {$_GET['vidano-nam']} {$_GET['vidano-ot']}", ["  " => " "]));
+$vidano = trim(strtr($_GET['vidano'], ["  " => " "]));
 $vd = explode(" ", $vidano);
-$vd_len = mb_strlen($vidano, 'utf8');
 
 $normal = 'verdana';
 ?>
@@ -76,10 +75,10 @@ $normal = 'verdana';
                     <table class="citizen">
                         <?php
                             if ((sizeof($vd) > 1) && (( mb_strlen($vd[1], 'utf8') <= 2) || (substr_count($vidano, '.')))) {
-                                $string = 'Гр.' . Helper::truncateToWidth($vidano, $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth($vidano, $normal, 8, 135, $mpdfObject);
                             } 
                             else {
-                                $string = 'Гр.' . Helper::truncateToWidth($vd[0], $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth($vd[0], $normal, 8, 135, $mpdfObject);
                             }
 
                             echo '<tr><td class="citizen_underline">' .$string . "</td></tr>";
@@ -114,7 +113,7 @@ $normal = 'verdana';
                 ?>
             </div>
             <?php
-                $string = "{$_GET['fam']} {$_GET['nam']} {$_GET['ot']}" . str_repeat("\u{00A0}", 12);
+                $string = $_GET['fio'] . str_repeat("\u{00A0}", 12);
 
                 if ($_GET['age']){
                     $string .= ', ' . $_GET['age'];
@@ -173,12 +172,6 @@ $normal = 'verdana';
             <div class="hinttext">
                 (фамилия, имя, отчество)
             </div>
-            <?php
-                if (isset($_GET['print_crem'])){
-                    Helper::tablePrint('Регистрационный № кремации', $_GET['num-crem-reg'], 390, 545, 7, $normal, $mpdfObject);
-                    Helper::tablePrint('№ счета по кремации', $_GET['num-crem-account'], 435, 545, 7, $normal, $mpdfObject);
-                }
-            ?>
             <div>
                 Основание: связка <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['svazka'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , 
                 книга <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['book_num'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , стр. <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['page_num'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , п/п <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['pp'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>

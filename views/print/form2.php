@@ -18,9 +18,8 @@ if (preg_match("#.*?(\d\d\d\d).*?#", $rip_date, $m)) {
 if (isset($_GET['dead_year']))
     $rip_year = $_GET['dead_year'];
 
-$vidano = trim(strtr("{$_GET['vidano-fam']} {$_GET['vidano-nam']} {$_GET['vidano-ot']}", ["  " => " "]));
+$vidano = trim(strtr($_GET['vidano'], ["  " => " "]));
 $vd = explode(" ", $vidano);
-$vd_len = mb_strlen($vidano, 'utf8');
 
 $normal = 'verdana';
 ?>
@@ -68,10 +67,10 @@ $normal = 'verdana';
                     <table class="citizen">
                         <?php
                             if ((sizeof($vd) > 1) && (( mb_strlen($vd[1], 'utf8') <= 2) || (substr_count($vidano, '.')))) {
-                                $string = 'Гр.' . Helper::truncateToWidth($vidano, $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth($vidano, $normal, 8, 135, $mpdfObject);
                             } 
                             else {
-                                $string = 'Гр.' . Helper::truncateToWidth($vd[0], $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth($vd[0], $normal, 8, 135, $mpdfObject);
                             }
 
                             echo '<tr><td class="citizen_underline">' .$string . "</td></tr>";
@@ -103,7 +102,7 @@ $normal = 'verdana';
                 о захоронении
             </div>
             <?php
-                Helper::tablePrint('', "{$_GET['fam']} {$_GET['nam']} {$_GET['ot']}", 545, 545, 7, $normal, $mpdfObject, 10);
+                Helper::tablePrint('', $_GET['fio'], 545, 545, 7, $normal, $mpdfObject, 10);
             ?>
             <div class="hinttext">
                 (фамилия, имя, отчество полностью)

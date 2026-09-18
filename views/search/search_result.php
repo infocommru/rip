@@ -43,7 +43,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
     'columns' => [
         ['class' => 'yii\grid\SerialColumn'],
 
-        'regnum:text:Номер',
+        'regnum:text:#',
         'fio_display:text:ФИО',
         'age:text:Возраст',
         [
@@ -60,8 +60,6 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 return Helper::formatDate((string)$model->rip_date);
             },
         ],
-        'num_crem_reg:text:Рег. № кремации',
-        'num_crem_account:text:№ счета по кремации',
         'docnum:text:Номер документа',
         'zags:text:ЗАГС',
         [
@@ -196,8 +194,12 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                     );
                 }
 
-                // Объединяем все ссылки через небольшой отступ
-                return implode(' ', $links);
+                // Объединяем все ссылки
+                return \yii\helpers\Html::tag(
+                    'div',
+                    implode('', $links),
+                    ['style' => 'display:flex; flex-direction:column; align-items:center; gap:4px;']
+                );
             },
         ],
     ],

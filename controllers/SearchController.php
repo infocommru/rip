@@ -54,32 +54,96 @@ class SearchController extends Controller {
     /**
      *
      * @param string $q
-     * @param string $variable
-     * @return string
+     * @param array $variables
+     * @return array
      */
-    public function actionSearchSuggest($q, $variable)
+    public function actionSearchSuggest(string $q, array $variables): array
     {
-        $query = \app\models\CacheRecords::find();
+        $resultsByVariable = [];
 
-        $elasticQuery = [
-            'multi_match' => [
-                'query' => $q,
-                'type'  => 'bool_prefix',
-                'fields' => [
-                    $variable . '.autocomplete',
-                    $variable . '.autocomplete._2gram',
-                    $variable . '.autocomplete._3gram',
+        foreach ($variables as $variable) {
+            $elasticQuery = [
+                'multi_match' => [
+                    'query' => $q,
+                    'type' => 'bool_prefix',
+                    'fields' => [
+                        $variable . '.autocomplete',
+                        $variable . '.autocomplete._2gram',
+                        $variable . '.autocomplete._3gram',
+                    ],
                 ],
-            ]
-        ];
+            ];
 
-        $query->query($elasticQuery);
-        $query->addCollapse(['field' => $variable . '.keyword']);
+            $records = \app\models\CacheRecords::find()
+                ->query($elasticQuery)
+                ->addCollapse([
+                    'field' => $variable . '.keyword',
+                ])
+                ->orderBy([
+                    '_score' => SORT_DESC,
+                    'record_id' => SORT_DESC,
+                ])
+                ->all();
 
-        $response = $query->orderBy(['_score' => SORT_DESC, 'record_id' => SORT_DESC])->all();
-        $response = \yii\helpers\ArrayHelper::getColumn($response, $variable);
+            $resultsByVariable[$variable] = [];
 
-        return json_encode($response);
+            foreach ($records as $record) {
+                $value = $record->$variable;
+
+                if ($value === null || $value === '') {
+                    continue;
+                }
+
+                $resultsByVariable[$variable][] = [
+                    'value' => $value,
+                    'score' => $record->_score ?? 0,
+                ];
+            }
+        }
+
+        /*
+        * Чередуем результаты разных переменных:
+        *
+        * variable1 → result1
+        * variable2 → result1
+        * variable3 → result1
+        * variable1 → result2
+        * variable2 → result2
+        * variable3 → result2
+        */
+
+        $response = [];
+        $seen = [];
+
+        $maxResults = max(
+            array_map('count', $resultsByVariable)
+        );
+
+        for ($i = 0; $i < $maxResults; $i++) {
+            foreach ($variables as $variable) {
+                if (!isset($resultsByVariable[$variable][$i])) {
+                    continue;
+                }
+
+                $item = $resultsByVariable[$variable][$i];
+                $value = $item['value'];
+
+                if (isset($seen[$value])) {
+                    continue;
+                }
+
+                $seen[$value] = true;
+                $response[] = $value;
+
+                if (count($response) >= 10) {
+                    break 2;
+                }
+            }
+        }
+
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        return $response;
     }
 
     /**

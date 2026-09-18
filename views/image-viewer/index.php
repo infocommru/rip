@@ -13,7 +13,7 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    OpenSeadragon({
+    const viewer = OpenSeadragon({
         id: "openseadragon-viewer",
         prefixUrl: "<?= $imagesUrl ?>",
         drawer: "html",
@@ -22,6 +22,63 @@ document.addEventListener('DOMContentLoaded', function () {
             url: "<?= $path ?>"
         }
     });
+
+    const printButton = new OpenSeadragon.Button({
+        tooltip: '',
+        srcRest: '/assets/img/printer.png',
+        srcHover: '/assets/img/printer_hover.png',
+        srcDown: '/assets/img/printer_hover.png',
+
+        onClick: function () {
+            printImage("<?= $path ?>");
+        }
+    });
+
+    viewer.addControl(printButton.element, {
+        anchor: OpenSeadragon.ControlAnchor.ABSOLUTE,
+        top: 3,
+        left: 145,
+    });
+
+    const printImage = (imageUrl) => {
+        const iframe = document.createElement('iframe');
+
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow.document;
+
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html>
+            <body>
+                <img id="printImage" src="${imageUrl}">
+            </body>
+            </html>
+        `);
+        doc.close();
+
+        const img = doc.getElementById('printImage');
+
+        img.onload = () => {
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+
+                // Удаляем iframe после печати
+                setTimeout(() => {
+                    iframe.remove();
+                }, 1000);
+            }, 100);
+        };
+    };
 });
 </script>
 

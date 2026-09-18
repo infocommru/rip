@@ -53,6 +53,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'age',
             'death_date',
             'rip_date',
+            'num_crem_reg',
+            'num_crem_account',
             'docnum',
             'zags',
             'area_num',
