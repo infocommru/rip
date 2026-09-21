@@ -150,6 +150,8 @@ class HelperCache {
                     'filename' => $result['filename'],
                     'vopros' => $result['vopros'],
                     'updated_at' => $result['updated_at'],
+
+                    'gos' => $result['gos'],
                 ]);
 
                 if ($counter >= 5000) {

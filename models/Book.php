@@ -19,6 +19,7 @@ use Yii;
  * @property int $status
  * @property string|null $comment
  * @property int $rip_style
+ * @property bool $gos
  * @property int $deleted
  * @property int $dbg
  * 
@@ -43,6 +44,7 @@ class Book extends \yii\db\ActiveRecord {
             [['number', 'svazka'], 'string', 'max' => 128],
             [['year1', 'year2', 'records'], 'string', 'max' => 32],
             [['comment'], 'string'],
+            [['gos'], 'boolean'],
             [['cemetery_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cemetery::class, 'targetAttribute' => ['cemetery_id' => 'id']],
         ];
     }
@@ -65,6 +67,7 @@ class Book extends \yii\db\ActiveRecord {
             'comment' => 'Комментарий',
             'rip_style' => 'Захоронение',
             'deleted' => 'Удалено',
+            'gos' => 'Госсчет',
             'dbg' => '',
         ];
     }

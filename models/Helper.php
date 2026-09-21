@@ -7,19 +7,31 @@ class Helper {
      * @return string
      * @param string $date
      */
-    public static function formatDate(string $date): string {
-        $date = strtr($date, ['00:00:00' => '']);
-        $date = trim($date);
+    public static function formatDate(string $date): string 
+    {
+        $cleanDate = trim(strtr($date, ['00:00:00' => '']));
 
-        if (preg_match("#(\d\d)\D(\d\d)\D(\d\d\d\d)#", $date, $m)) {
-            return $m[1] . '.' . $m[2] . '.' . $m[3];
+        if (empty($cleanDate))
+            return '';
+
+        // Возможные входящие форматы
+        $formats = [
+            'd/m/Y', 'd.m.Y', 'd-m-Y',
+            'Y-m-d', 'Y/m/d', 'Y.m.d',
+        ];
+
+        foreach ($formats as $format) {
+            $dateTime = \DateTime::createFromFormat($format, $cleanDate);
+            // Проверяем, что дата успешно спарсилась и соответствует формату
+            if ($dateTime && $dateTime->format($format) === $cleanDate) {
+                return $dateTime->format('d.m.Y');
+            }
         }
 
-        if (preg_match("#(\d\d\d\d)\D(\d\d)\D(\d\d)#", $date, $m)) {
-            return $m[3] . '.' . $m[2] . '.' . $m[1];
-        }
-	
-        return $date;
+        if($cleanDate === '..')
+            return '';
+
+        return $cleanDate;
     }
 
     /**

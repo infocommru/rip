@@ -12,6 +12,8 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\helpers\FileHelper;
+use app\models\Helper;
+use app\models\HelperCache;
 use Yii;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -43,6 +45,7 @@ class PrintController extends Controller {
      */
     public function actionIndex(int $record_id = 0): string {
         $record = null;
+        $req = Yii::$app->request;
         
         if($record_id){
             $record = Record::find()
@@ -53,10 +56,106 @@ class PrintController extends Controller {
         $sdata = CacheRecords::find()->query(['term' => ['record_id' => $record_id]])->one();
         $user = \app\models\User::findIdentity(\Yii::$app->user->id);
 
+        $book = $record->book ?? null;
+        $cemetery = $book->cemetery ?? null;
+
+        // Определение способа захоронения (приоритет у книги)
+        $grob = '';
+
+        if (!empty($book->rip_style))
+            $grob = Book::ripStyleTypes()[$book->rip_style] ?? '';
+        elseif ($record)
+            $grob = Record::ripStyleTypes()[$record->rip_style] ?? '';
+        else
+            $grob = Record::ripStyleTypes()[(int) $req->get('rip_style', '')] ?? '';
+
+        // Формирование базового шаблона места захоронения
+        if ($record) {
+            $parts = array_filter([
+                (string)$record->area_num !== '' ? "уч. {$record->area_num}" : null,
+                (string)$record->row_num  !== '' ? "ряд {$record->row_num}" : null,
+                (string)$record->rip_num  !== '' ? "место {$record->rip_num}" : null,
+            ]);
+            $zah_suffix = implode(', ', $parts);
+            unset($parts);
+        }
+        else {
+            $parts = array_filter([
+                ($req->get('areanum', '') !== '' && $req->get('ext_search', '') == '1') ? "уч. {$req->get('areanum', '')}" : null,
+                ($req->get('rownum', '')  !== '' && $req->get('ext_search', '') == '1') ? "ряд {$req->get('rownum', '')}" : null,
+                ($req->get('ripnum', '')  !== '' && $req->get('ext_search', '') == '1') ? "место {$req->get('ripnum', '')}" : null,
+            ]);
+            $zah_suffix = implode(', ', $parts);
+            unset($parts);
+        }
+
+        // Формирование ФИО оператора
+        $user_fio = $user->middlename 
+            ? $user->lastname . ' ' . mb_substr($user->firstname, 0, 1, 'utf8') . '. ' . mb_substr($user->middlename, 0, 1, 'utf8') . '.'
+            : "$user->lastname $user->firstname $user->middlename";
+
+        // Собираем данные записи
+        if($record){
+            $res = [
+                'fio'          => $record->fio ?? '',
+                'cemetery'     => $cemetery->name ?? '',
+                'docnum'       => $record->docnum ?? '',
+                'age'          => $record->age ?? '',
+                'relative_fio' => $record->relative_fio ?? '',
+                'zags'         => $record->zags ?? '',
+                'comment'      => $record->comment ?? '',
+                'number'       => $book->number ?? '',
+                'svazka'       => $book->svazka ?? '',
+                'page_num'     => $sdata->page_num ?? '',
+                'regnum'       => $sdata->regnum ?? '',
+                'rip_date'     => Helper::formatDate($record->rip_date ?? ''),
+                'death_date'   => Helper::formatDate($record->death_date ?? ''),
+                'num-crem-reg' => $record->num_crem_reg ?? '',
+                'num-crem-account' => $record->num_crem_account ?? '',
+            ];
+        }
+        else {
+            $res = [
+                'fio'          => preg_replace('/\s+/', ' ', trim("{$req->get('fam', '')} {$req->get('nam', '')} {$req->get('ot', '')} {$req->get('unknown_number', '')}")),
+                'cemetery'     => Cemetery::find()
+                                    ->select('name')
+                                    ->where(['id' => (int)$req->get('cemetery', '')])
+                                    ->scalar(),
+                'docnum'       => $req->get('docnum', ''),
+                'age'          => $req->get('age', ''),
+                'relative_fio' => ($req->get('ext_search', '') == '1') ? $req->get('rel', '') : '',
+                'zags'         => $req->get('zags', ''),
+                'comment'      => $req->get('comment', ''),
+                'number'       => "",
+                'svazka'       => "",
+                'page_num'     => "",
+                'regnum'       => $req->get('regnum', ''),
+                'rip_date'     => Helper::formatDate("{$req->get('rip_d', '')}.{$req->get('rip_m', '')}.{$req->get('rip_y', '')}"),
+                'rip_y'        => $req->get('rip_y', ''),
+                'death_date'   => Helper::formatDate("{$req->get('dead_d', '')}.{$req->get('dead_m', '')}.{$req->get('dead_y', '')}"),
+                'num-crem-reg' => ($req->get('ext_search', '') == '1') ? $req->get('num-crem-reg', '') : '',
+                'num-crem-account' => ($req->get('ext_search', '') == '1') ? $req->get('num-crem-account', '') : '',
+            ];
+        }
+
+        $title = "Печать" . ($record ? ": {$cemetery->name}, {$record->fio}" : '');
+
+        if($req->get('f2notFound', '') == '1'){
+            return $this->render('form2_not_found', [
+                'grob' => $grob,
+                'zah_suffix' => $zah_suffix,
+                'user_fio' => $user_fio,
+                'res' => $res,
+                'title' => $title,
+            ]);
+        }
+
         return $this->render('index', [
-            'record' => $record,
-            'sdata' => $sdata,
-            'user' => $user,
+            'grob' => $grob,
+            'zah_suffix' => $zah_suffix,
+            'user_fio' => $user_fio,
+            'res' => $res,
+            'title' => $title,
         ]);
     }
 

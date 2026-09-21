@@ -62,29 +62,24 @@ class BookController extends Controller {
         $book->load($this->request->get());
 
         $query = Book::find()->andWhere(['deleted' => 0]);
-        if ($book->name) {
+
+        if ($book->name)
             $query->andWhere(["like", "name", $book->name]);
-        }
 
-        if ($book->number) {
+        if ($book->number)
             $query->andWhere(["number" => $book->number]);
-        }
 
-        if ($book->svazka) {
+        if ($book->svazka)
             $query->andWhere(["svazka" => $book->svazka]);
-        }
 
-        if ($book->records) {
+        if ($book->records)
             $query->andWhere(["like", "records", $book->records]);
-        }
 
-        if ($book->year1) {
+        if ($book->year1)
             $query->andWhere(["like", "year1", $book->year1]);
-        }
 
-        if ($book->year2) {
+        if ($book->year2)
             $query->andWhere(["like", "year2", $book->year2]);
-        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

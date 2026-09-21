@@ -3,16 +3,16 @@
 use yii\helpers\Html;
 use app\models\Book;
 use app\models\Record;
-use app\models\Helper;
-use app\models\HelperCache;
 use app\models\Cemetery;
 use yii\web\View;
 
 /**
- * @var \app\models\Record | null  $record
- * @var \app\models\CacheRecords | null $sdata
  * @var yii\web\View $this
- * @var \app\models\User $user
+ * @var array<string, string|null|false> $res
+ * @var string $title
+ * @var string $zah_suffix
+ * @var string $grob
+ * @var string $user_fio
  */
 
 $this->registerJsFile('assets/js/autocomplete.js', [
@@ -20,48 +20,9 @@ $this->registerJsFile('assets/js/autocomplete.js', [
     'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
 ]);
 
-$book = $record->book ?? null;
-$cemetery = $book->cemetery ?? null;
-
-$this->title = "Печать" . ($record ? ": {$cemetery->name}, {$record->fio}" : '');
+$this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
-
-// Определение способа захоронения (приоритет у книги)
-$grob = '';
-
-if (!empty($book->rip_style)) {
-    $grob = Book::ripStyleTypes()[$book->rip_style] ?? '';
-} elseif ($record) {
-    $grob = Record::ripStyleTypes()[$record->rip_style] ?? '';
-}
-
-// Формирование базового шаблона места захоронения
-$zah_suffix = $record ? "уч. {$record->area_num}, ряд {$record->row_num}, место {$record->rip_num}" : '';
-
-// Формирование ФИО оператора
-$user_fio = $user->middlename 
-    ? $user->lastname . ' ' . mb_substr($user->firstname, 0, 1, 'utf8') . '. ' . mb_substr($user->middlename, 0, 1, 'utf8') . '.'
-    : "$user->lastname $user->firstname $user->middlename";
-
-// Собираем данные записи
-$res = [
-    'fio'          => $record->fio ?? '',
-    'cemetery'     => $cemetery->name ?? '',
-    'docnum'       => $record->docnum ?? '',
-    'age'          => $record->age ?? '',
-    'relative_fio' => $record->relative_fio ?? '',
-    'zags'         => $record->zags ?? '',
-    'comment'      => $record->comment ?? '',
-    'number'       => $book->number ?? '',
-    'svazka'       => $book->svazka ?? '',
-    'page_num'     => $sdata->page_num ?? '',
-    'regnum'       => $sdata->regnum ?? '',
-    'rip_date'     => Helper::formatDate($record->rip_date ?? ''),
-    'death_date'   => Helper::formatDate($record->death_date ?? ''),
-    'num-crem-reg' => $record->num_crem_reg ?? '',
-    'num-crem-account' => $record->num_crem_account ?? '',
-];
 ?>
 
 <div class="print-view">
@@ -130,7 +91,7 @@ $res = [
                     <label for="cemetery" class="form-label mb-0">Кладбище</label>
                     <select class="form-select" name="cemetery" id="cemetery">
                         <?php
-                            $names = Cemetery::find()->select('name')->column();
+                            $names = Cemetery::find()->select('name')->orderBy(['name' => SORT_ASC])->column();
 
                             foreach ($names as $name){
                                 $selected = '';

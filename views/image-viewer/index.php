@@ -41,42 +41,76 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const printImage = (imageUrl) => {
-        const iframe = document.createElement('iframe');
+        const tempImg = new Image();
+        tempImg.src = imageUrl;
 
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
+        tempImg.onload = () => {
+            const isLandscape = tempImg.naturalWidth > tempImg.naturalHeight;
+            const orientation = isLandscape ? 'landscape' : 'portrait';
 
-        document.body.appendChild(iframe);
+            const iframe = document.createElement('iframe');
 
-        const doc = iframe.contentWindow.document;
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
 
-        doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html>
-            <body>
-                <img id="printImage" src="${imageUrl}">
-            </body>
-            </html>
-        `);
-        doc.close();
+            document.body.appendChild(iframe);
 
-        const img = doc.getElementById('printImage');
+            const doc = iframe.contentWindow.document;
 
-        img.onload = () => {
-            setTimeout(() => {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        @page {
+                            size: A4 ${orientation};
+                            /* Сбрасываем поля страницы, чтобы контролировать отступы через CSS */
+                            margin: 0; 
+                        }
+                        html, body {
+                            width: 100%;
+                            height: 100%;
+                            margin: 0;
+                            /* Добавляем безопасный padding (3mm) под физические поля принтера */
+                            padding: 3mm; 
+                            box-sizing: border-box;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background: #fff;
+                        }
+                        img {
+                            /* Ограничиваем картинку размерами области с учетом padding */
+                            max-width: 100%;
+                            max-height: 100%;
+                            object-fit: contain;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <img id="printImage" src="${imageUrl}">
+                </body>
+                </html>
+            `);
+            doc.close();
 
-                // Удаляем iframe после печати
+            const img = doc.getElementById('printImage');
+
+            img.onload = () => {
                 setTimeout(() => {
-                    iframe.remove();
-                }, 1000);
-            }, 100);
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+
+                    setTimeout(() => {
+                        iframe.remove();
+                    }, 1000);
+                }, 100);
+            };
         };
     };
 });

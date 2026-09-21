@@ -107,6 +107,7 @@ class SearchCacheController extends Controller {
 				    'filename' => ['type' => 'keyword', 'index' => 'false'],
 				    'vopros' => ['type' => 'integer', 'index' => 'false'],
 				    'updated_at' => ['type' => 'integer', 'index' => 'false'],
+					'gos' => ['type' => 'boolean'],
 				]
 			]
 		]);

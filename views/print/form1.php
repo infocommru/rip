@@ -31,7 +31,9 @@ $normal = 'verdana';
 <!doctype html>
 <html>
     <head>
-        <link rel="stylesheet" href="/assets/css/printer.css" />
+        <style>
+            <?= file_get_contents(FileHelper::normalizePath(\Yii::getAlias('@app/assets/css/printer.css'))); ?>
+        </style>
     </head>
     <body>
         <table>

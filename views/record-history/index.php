@@ -1,6 +1,8 @@
 <?php
 
 use app\models\RecordHistory;
+use app\models\Record;
+
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
@@ -9,8 +11,8 @@ use yii\widgets\DetailView;
 
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
- * @var \app\models\Record $model
- * @var array<\app\models\RecordHistory>|null $history
+ * @var Record $model
+ * @var array<RecordHistory>|null $history
 */
 $this->title = $model->book->name . ', запись №' . $model->numReg;
 
@@ -38,7 +40,17 @@ function td_content($data, $pole1, $pole2) {
     }
 }
 
-function renderHistoryCell($field, $historyModel, $index, $history, $model) {
+/**
+ * Отрисовывает ячейку истории с проверкой изменений поля.
+ *
+ * @param string $field Имя поля модели
+ * @param RecordHistory $historyModel Текущая модель истории
+ * @param int $index Индекс текущей записи в массиве истории
+ * @param array<int, RecordHistory> $history Массив всех записей истории
+ * @param Record $model Текущая основная модель
+ * @return string HTML-код ячейки с выделением изменений
+ */
+function renderHistoryCell(string $field, RecordHistory $historyModel, int $index, array $history, Record $model) {
     $info = unserialize($historyModel->info);
     $historyLast = isset($history[$index + 1]) 
         ? unserialize($history[$index + 1]->info) 
@@ -93,7 +105,7 @@ function renderHistoryCell($field, $historyModel, $index, $history, $model) {
             [
                 'label' => 'Захоронение',
                 'value' => function ($model) {
-                    return \app\models\Record::ripStyleTypes()[$model->rip_style];
+                    return Record::ripStyleTypes()[$model->rip_style];
                 }
             ],
         ],
@@ -238,7 +250,7 @@ function renderHistoryCell($field, $historyModel, $index, $history, $model) {
                             ? unserialize($history[$index + 1]->info) 
                             : $model->attributes;
 
-                        $ripStyleTypes = \app\models\Record::ripStyleTypes();
+                        $ripStyleTypes = Record::ripStyleTypes();
                         $ripStyle = isset($ripStyleTypes[$info['rip_style']]) ? $ripStyleTypes[$info['rip_style']] : '';
 
                         return td_content($ripStyle, $historyLast['rip_style'], $info['rip_style']);

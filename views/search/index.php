@@ -56,10 +56,10 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
 ]);
 
 ?>
-    <h2>Поиск по захоронениям г. Санкт-Петербурга</h2>
-    <hr />
-    <h4>Основные параметры</h4>
     <div class="search-form" id="filter-container">
+        <h2>Поиск по захоронениям г. Санкт-Петербурга</h2>
+        <hr />
+        <h4>Основные параметры</h4>
         <div class="container">
             <div class="row">
                 <div class="col-sm-2">
@@ -149,15 +149,15 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                 </div>
 
                 <div class="col-sm-3">
-                    <label for="dead_year">Дата смерти</label>
+                    <label for="dead_y">Дата смерти</label>
                     <div class="input-group mb-2">
-                        <input id="dead_y" name="dead_y" type="text" class="form-control" placeholder="Год" >
+                        <input id="dead_y" name="dead_y" type="text" class="form-control" placeholder="Год" maxlength="4">
                         <span class="input-group-text">.</span>
-                        <input id="dead_m" name="dead_m" type="text" class="form-control" placeholder="Месяц" >
+                        <input id="dead_m" name="dead_m" type="text" class="form-control" placeholder="Месяц" maxlength="2">
                         <span class="input-group-text">.</span>
-                        <input id="dead_d" name="dead_d" type="text" class="form-control" placeholder="День" >
+                        <input id="dead_d" name="dead_d" type="text" class="form-control" placeholder="День" maxlength="2">
                     </div>
-                </div>  
+                </div>
 
                 <div class="col-sm-1">
                     <label for="dead_year_cmp">Сравнение</label>
@@ -169,13 +169,13 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                 </div>
 
                 <div class="col-sm-3">
-                    <label for="dead_year">Дата захоронения</label>
+                    <label for="rip_y">Дата захоронения</label>
                     <div class="input-group mb-2">
-                        <input id="rip_y" name="rip_y" type="text" class="form-control" placeholder="Год" >
+                        <input id="rip_y" name="rip_y" type="text" class="form-control only-digits" placeholder="Год" maxlength="4">
                         <span class="input-group-text">.</span>
-                        <input id="rip_m" name="rip_m" type="text" class="form-control" placeholder="Месяц" >
+                        <input id="rip_m" name="rip_m" type="text" class="form-control" placeholder="Месяц" maxlength="2">
                         <span class="input-group-text">.</span>
-                        <input id="rip_d" name="rip_d" type="text" class="form-control" placeholder="День" >
+                        <input id="rip_d" name="rip_d" type="text" class="form-control" placeholder="День" maxlength="2">
                     </div>
                 </div>  
 
@@ -186,26 +186,6 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                         <option value='2'>Меньше</option>
                         <option value='3'>Больше</option>
                     </select>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label for="num_crem_reg">Регистрационный № кремации</label>
-                        <input name="num_crem_reg" id="num_crem_reg" class="form-control">
-                    </div>
-                </div>
-                <div class="col-sm-1">
-                    <?= echo_select_fuzziness('num_crem_reg_cont') ?>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label for="num_crem_account">№ счета по кремации</label>
-                        <input name="num_crem_account" id="num_crem_account" class="form-control">
-                    </div>
-                </div>
-                <div class="col-sm-1">
-                    <?= echo_select_fuzziness('num_crem_account_cont') ?>
                 </div>
             </div>
             <div class="row">
@@ -234,7 +214,7 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                     <button type="submit" id="find_results" class="btn btn-primary btn-lg btn-block search_btn">Найти</button>
                 </div>
                 <div class="col-sm-2">
-                    <a href="<?= \yii\helpers\Url::to(['print/index']) ?>" class="btn btn-success btn-lg btn-block search_btn" target="_blank">Создать форму</a>
+                    <a id="create_form_btn" class="btn btn-success btn-lg btn-block search_btn" target="_blank">Создать форму</a>
                 </div>
             </div>
             <div id='additional_search_params' class='d-none'>
@@ -269,15 +249,41 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                         <input type=text class='form-control' id='rel' name='rel' />
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="num_crem_reg">Регистрационный № кремации</label>
+                            <input name="num_crem_reg" id="num_crem_reg" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <?= echo_select_fuzziness('num_crem_reg_cont') ?>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="num_crem_account">№ счета по кремации</label>
+                            <input name="num_crem_account" id="num_crem_account" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <?= echo_select_fuzziness('num_crem_account_cont') ?>
+                    </div>
+                    <div class="col-sm-2">
+                        <br/>
+                        <div class="form-group">
+                            <input class="form-check-input" type="checkbox" role="switch" id="gos" name="gos" value="1">
+                            <label for="gos">Госсчет</label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <hr />
-
-            <div class="row d-none" id="search_results" style="width:100vw; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw;">
-                <div class="col-sm-12">
-                    <ul id="tabs" style="padding-left: 0px;"></ul>
-                </div>
-            </div>
+        </div>
+    </div>
+    <div class="row d-none" id="search_results">
+        <div class="col-sm-12">
+            <ul id="tabs" style="padding-left: 0px;"></ul>
         </div>
     </div>
 <script>
@@ -301,6 +307,47 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
         ];
 
         autocompleteFields.forEach(({ selector, name }) => initAutocomplete(selector, name));
+
+        function returnGET(baseUrl, f2notFound = false){
+            // 1. Проверяем валидность формы
+
+            if (!validateForm(true)){
+                event.preventDefault();
+                return;
+            }
+
+            // 2. Собираем актуальные значения всех заполненных полей
+            const printParams = new URLSearchParams();
+
+            document.querySelectorAll('#filter-container input, #filter-container select').forEach(input => {
+                if (!input.name) return;
+
+                let value;
+                if (input.type === 'checkbox') {
+                    value = input.checked ? '1' : '0';
+                } else {
+                    value = input.value.trim();
+                }
+
+                // Добавляем параметр в URL, если значение заполнено
+                if (value !== '' && value !== '0') {
+                    printParams.append(input.name, value);
+                }
+            });
+
+            if (f2notFound)
+                printParams.append('f2notFound', '1');
+
+            // 3. Формируем итоговый URL с параметрами и обновляем href у ссылки
+            const finalUrl = baseUrl + (baseUrl.includes('?') ? '&' : '?') + printParams.toString();
+
+            event.currentTarget.href = finalUrl;
+        }
+
+        // Передача параметров формы при клике на "Создать форму"
+        document.getElementById('create_form_btn').addEventListener('click', (event) => {
+            returnGET("<?= \yii\helpers\Url::to(['print/index']) ?>");
+        });
 
         // 2. Переключение расширенного поиска
         document.getElementById('ext_search').addEventListener('click', (event) => {
@@ -406,7 +453,17 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
 
                     const activeItems = response.filter(item => item.exists);
                     if (activeItems.length === 0) {
-                        $tabsContainer.html('<div class="alert alert-danger p-3">Ничего не найдено</div>');
+                        $tabsContainer.html(
+                            '<div class="alert alert-danger p-3">По вашему запросу ничего не найдено, попробуйте уточнить критерии поиска <a id="A2-not-found" target="_blank" href="#">Форма Ф2</a></div>');
+
+                        const btnA2 = document.getElementById('A2-not-found');
+
+                        if (btnA2) {
+                            btnA2.addEventListener('click', (event) => {
+                                returnGET("<?= \yii\helpers\Url::to(['print/index']) ?>", true);
+                            });
+                        }
+
                         document.querySelector('#search_results').classList.remove('d-none');
                         return;
                     }
@@ -492,7 +549,6 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                 '#dead_y', '#dead_m', '#dead_d', 
                 '#rip_y', '#rip_m', '#rip_d', 
                 '#regnum', '#zags', '#docnum', '#comment',
-                '#num_crem_reg', '#num_crem_account',
             ];
 
             const hasValue = fields.some(selector => Boolean($(selector).val()?.trim()));
@@ -519,3 +575,40 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
         });
     });
 </script>
+
+<style>
+    main > .container {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+        max-width:100% !important;
+    }
+
+    #filter-container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+
+        margin-left: auto;
+        margin-right: auto;
+
+        max-width:1800px !important;
+    }
+
+    #search_results {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+
+    #search_results > .col-sm-12 {
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
+
+    #tabs {
+        padding-left: 0px !important;
+    }
+
+    [id^="tabs-"] {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+</style>

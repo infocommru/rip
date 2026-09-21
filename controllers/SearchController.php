@@ -54,8 +54,8 @@ class SearchController extends Controller {
     /**
      *
      * @param string $q
-     * @param array $variables
-     * @return array
+     * @param list<string> $variables
+     * @return list<string>
      */
     public function actionSearchSuggest(string $q, array $variables): array
     {
@@ -142,7 +142,6 @@ class SearchController extends Controller {
         }
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
         return $response;
     }
 
@@ -461,14 +460,6 @@ class SearchController extends Controller {
 
             $elasticQuery['bool']['must'][] = $condition;
         }
-
-        if ($search['num_crem_reg']){
-            $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_reg_cont'], $search['num_crem_reg'], 'num_crem_reg');
-        }
-
-        if ($search['num_crem_account']){
-            $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_account_cont'], $search['num_crem_account'], 'num_crem_account');
-        }
         
         if ($search['zags']){
             $elasticQuery['bool']['must'][] = self::searchValue($search['zags_cont'], $search['zags'], 'zags');
@@ -498,6 +489,18 @@ class SearchController extends Controller {
             if ($search['rel']) {
             	$elasticQuery['bool']['must'][] = self::searchTermConditions($search['rel'], 'relative');
             }
+
+            if ($search['num_crem_reg']){
+                $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_reg_cont'], $search['num_crem_reg'], 'num_crem_reg');
+            }
+
+            if ($search['num_crem_account']){
+                $elasticQuery['bool']['must'][] = self::searchValue($search['num_crem_account_cont'], $search['num_crem_account'], 'num_crem_account');
+            }
+
+            if ($search['gos']){
+                $elasticQuery['bool']['must'][] = ['term' => ['gos' => (bool)$search['gos']]];
+            }
         }
 
         return $elasticQuery;
@@ -523,6 +526,7 @@ class SearchController extends Controller {
         // 4. Передаем именно $query в ActiveDataProvider
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
+            'sort' => false,
             'pagination' => [
                 'page' => $page - 1,       // Yii2 считает страницы с 0
                 'pageSize' => $paginator,

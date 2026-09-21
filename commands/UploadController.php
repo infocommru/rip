@@ -82,6 +82,7 @@ class UploadController extends Controller {
             $book->number = $bookData['number'];
             $book->svazka = $bookData['svazka'];
             $book->records = '0';
+            $book->gos = false;
             $book->save();
 
             $statInfo = HelperExcel::processBookExcel($book->id, $bookline, $updateStatus);

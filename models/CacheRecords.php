@@ -47,6 +47,7 @@ use yii\helpers\FileHelper;
  * @property string|null $filename
  * @property int $vopros
  * @property int|null $updated_at
+ * @property bool $gos
  */
 
 class CacheRecords extends ActiveRecord
@@ -60,7 +61,7 @@ class CacheRecords extends ActiveRecord
 			"rip_year", "rip_month", "rip_day", "rip_date", "num_crem_reg", "num_crem_account",
 		 	"zags", "rip_style", "unknown", "unknown_number", "docnum", "areanum", "rownum", "ripnum",
 			"relative", "svazka_num", "book_num", "page_num", "page_punkt", "comment", "comment_book",
-			"book_id", "book_rip_style", "filename", "vopros", "updated_at"];
+			"book_id", "book_rip_style", "filename", "vopros", "updated_at", "gos"];
     }
 
     // Имя индекса в OpenSearch (аналог таблицы в БД)
@@ -88,6 +89,7 @@ class CacheRecords extends ActiveRecord
             [['docnum', 'fio_display', 'age', 'num_crem_reg', 'num_crem_account'], 'string', 'max' => 128],
             [['zags', 'areanum', 'rownum', 'ripnum', 'relative', 'filename'], 'string', 'max' => 256],
             [['comment', 'comment_book'], 'string'],
+            [['gos'], 'boolean'],
         ];
     }
 
@@ -218,6 +220,8 @@ class CacheRecords extends ActiveRecord
         $value['filename'] = (string)$record['filename'];
         $value['vopros'] = (string)$record['vopros'];
         $value['updated_at'] = $record['updated_at'];
+
+        $value['gos'] = (bool)$book->gos;
 
         return $value;
     }

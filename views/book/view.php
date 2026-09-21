@@ -74,6 +74,10 @@ $obloshka = \app\models\HelperImg::getTitleImage($model);
                     return \app\models\Book::ripStyleTypes()[$model->rip_style];
                 }
             ],
+            [
+                'attribute' => 'gos',
+                'format' => 'boolean',
+            ],
         ],
     ])
     ?>
