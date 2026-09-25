@@ -82,6 +82,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="col-sm-12"> 
                     <label for="comment">Комментарий</label>
                     <input class="form-control" type="text" name="comment" id="comment" value="<?= htmlspecialchars($res['comment']) ?>" />
+                    <input type="hidden" name="print_comment" value="2">
                 </div>
             </div>
             <div class="row">
