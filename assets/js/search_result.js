@@ -29,6 +29,11 @@
             const rect = targetEl.getBoundingClientRect();
             const windowHeight = $(window).height();
 
+            if(targetEl.scrollWidth < $scrollTarget.outerWidth() + 1){
+                $scrollContainer.hide();
+                return;
+            }
+
             if (rect.top < windowHeight && rect.bottom > windowHeight) {
                 $scrollContainer.css({
                     left: rect.left + 'px',

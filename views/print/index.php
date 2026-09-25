@@ -15,11 +15,6 @@ use yii\web\View;
  * @var string $user_fio
  */
 
-$this->registerJsFile('assets/js/autocomplete.js', [
-    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
-    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
-]);
-
 $this->title = $title;
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -89,22 +84,15 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="row">
                 <div class="col-sm-3"> 
                     <label for="cemetery" class="form-label mb-0">Кладбище</label>
-                    <select class="form-select" name="cemetery" id="cemetery">
-                        <?php
-                            $names = Cemetery::find()->select('name')->orderBy(['name' => SORT_ASC])->column();
-
-                            foreach ($names as $name){
-                                $selected = '';
-
-                                if($res['cemetery'] === $name)
-                                    $selected = 'selected';
-
-                                echo "<option $selected value=\"$name\">$name</option>";
-                            }
-                        ?>
-                    </select>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="cemetery"
+                        id="cemetery"
+                        value="<?= htmlspecialchars($res['cemetery'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                    >
                 </div>
-                <div class="col-sm-3"> 
+                <div class="col-sm-2"> 
                     <label for="zahr" class="form-label mb-0">Захоронение</label>
                     <select class="form-select" name="zahr" id="zahr">
                         <?php
@@ -119,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         ?>
                     </select>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-7">
                     <label for="place" class="form-label mb-0">Номер участка, ряда и места</label>
                     <input class="form-control" type="text" name="place" id="place" value="<?= htmlspecialchars($zah_suffix) ?>" />
                 </div>
@@ -231,19 +219,5 @@ $this->params['breadcrumbs'][] = $this->title;
 
         // Первоначальная инициализация значений
         updateAuthor();
-
-        const autocompleteFields = [
-            { selector: '#docnum', name: 'docnum' },
-            { selector: '#pp', name: 'regnum' },
-            
-            { selector: '#author2', name: 'relative' },
-            { selector: '#zags', name: 'zags' },
-            { selector: '#comment', name: 'comment' },
-
-            { selector: '#vidano', name: ['fam', 'nam', 'ot'] },
-            { selector: '#fio', name: ['fam', 'nam', 'ot'] },
-        ];
-
-        autocompleteFields.forEach(({ selector, name }) => initAutocomplete(selector, name));
     });
 </script>

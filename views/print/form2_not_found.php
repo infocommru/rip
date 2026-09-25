@@ -15,11 +15,6 @@ use app\models\Helper;
  * @var string $user_fio
  */
 
-$this->registerJsFile('assets/js/autocomplete.js', [
-    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
-    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
-]);
-
 $this->title = "Форма Ф2";
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -58,20 +53,13 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="row">
                 <div class="col-sm-3"> 
                     <label for="zahr">Кладбище</label>
-                    <select class="form-select" type="text" name="cemetery" id="cemetery">
-                        <?php
-                            $names = Cemetery::find()->select('name')->orderBy(['name' => SORT_ASC])->column();
-
-                            foreach ($names as $name){
-                                $selected = '';
-
-                                if($res['cemetery'] === $name)
-                                    $selected = 'selected';
-
-                                echo "<option $selected value=\"$name\">$name</option>";
-                            }
-                        ?>
-                    </select>
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="cemetery"
+                        id="cemetery"
+                        value="<?= htmlspecialchars($res['cemetery'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                    >
                 </div>
                 <div class="col-sm-9"> 
                     <label for="author">Специалист по работе с архивом</label>
@@ -113,15 +101,3 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </form>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const autocompleteFields = [          
-            { selector: '#comment', name: 'comment' },
-
-            { selector: '#vidano', name: ['fam', 'nam', 'ot'] },
-            { selector: '#fio', name: ['fam', 'nam', 'ot'] },
-        ];
-
-        autocompleteFields.forEach(({ selector, name }) => initAutocomplete(selector, name));
-    });
-</script>

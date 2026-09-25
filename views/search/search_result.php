@@ -39,11 +39,12 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 
 <?= GridView::widget([
     'dataProvider' => $dataProvider,
+    'tableOptions' => ['class' => 'table table-sm table-bordered table-striped'],
     'options' => ['class' => 'grid-view sticky-table-wrapper'],
     'columns' => [
         ['class' => 'yii\grid\SerialColumn'],
 
-        'regnum:text:#',
+        'regnum:text:№',
         'fio_display:text:ФИО',
         'age:text:Возраст',
         [
@@ -55,16 +56,16 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
         ],
         [
             'attribute' => 'rip_date',
-            'label' => 'Дата захоронения',
+            'label' => 'Дата захорон.',
             'value' => function ($model) {
                 return Helper::formatDate((string)$model->rip_date);
             },
         ],
-        'docnum:text:Номер документа',
+        'docnum:text:№ документа',
         'zags:text:ЗАГС',
         [
             'attribute' => 'rip_style',
-            'label' => 'Захоронение',
+            'label' => 'Захорон.',
             'value' => function ($model) {
                 $types = \app\models\Record::ripStyleTypes();
                 
@@ -75,9 +76,9 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 return $types[$styleKey] ?? '';
             },
         ],
-        'areanum:text:Номер участка',
-        'rownum:text:Номер ряда',
-        'ripnum:text:Номер могилы',
+        'areanum:text:№ участка',
+        'rownum:text:№ ряда',
+        'ripnum:text:№ могилы',
         'relative:text:Родственники',
         [
             'label' => 'Доп. инфо',
@@ -205,7 +206,18 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
     ],
     'pager' => [
         'class' => \yii\widgets\LinkPager::class,
+        'options' => ['class' => 'pagination pagination-sm'],
     ],
 ]); ?>
 
 <?php Pjax::end(); ?>
+
+<style>
+    .grid-view th {
+    white-space: normal !important;
+    overflow-wrap: normal;            /* НЕ рвём длинные слова */
+    word-break: keep-all;             /* не рвём слова между символами */
+    hyphens: none;                    /* без автоматических переносов */
+    vertical-align: top;
+}
+</style>
