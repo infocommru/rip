@@ -189,3 +189,8 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
         </div>
     </div>
 </div>
+<style>
+.current_gallery_elem {
+    border:2px solid red;
+}
+</style>

@@ -6,6 +6,8 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
  *  @var string $flash
@@ -14,6 +16,9 @@ use yii\grid\GridView;
 */
 $this->title = "Записи, которые были удалены";
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="record-index">
     <?php if ($flash): ?>

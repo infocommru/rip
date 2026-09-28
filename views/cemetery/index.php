@@ -6,12 +6,17 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var Cemetery $model
 */
 $this->title = 'Кладбища';
 $this->params['breadcrumbs'][] = "Кладбища";
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="cemetery-index">
 

@@ -6,10 +6,15 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 $this->title = 'Логи загрузки';
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="book-upload-index">
 

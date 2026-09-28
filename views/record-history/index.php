@@ -9,11 +9,15 @@ use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\widgets\DetailView;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var Record $model
  * @var array<RecordHistory>|null $history
 */
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 $this->title = $model->book->name . ', запись №' . $model->numReg;
 
 $user = \app\models\User::findIdentity(\Yii::$app->user->id);
@@ -36,7 +40,7 @@ function td_content($data, $pole1, $pole2) {
     if ($pole1 == $pole2) {
         return Html::encode($data);
     } else {
-        return "<span class='ne_ravno'>" . Html::encode($data) . "</span>";
+        return "<span class='ne_ravno' style='color: #cc0000;'>" . Html::encode($data) . "</span>";
     }
 }
 

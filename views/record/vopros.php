@@ -7,6 +7,8 @@ use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\web\View;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
  * @var int $book_id
@@ -15,15 +17,7 @@ use yii\web\View;
 $this->title = "Записи, требующие уточнения";
 $this->params['breadcrumbs'][] = $this->title;
 
-$this->registerCssFile('assets/css/gridScrollBar.css', [
-    'depends' => [\yii\bootstrap5\BootstrapAsset::class], // или BootstrapPluginAsset
-]);
-
-
-$this->registerJsFile('assets/js/gridScrollBar.js', [
-    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
-    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
-]);
+$this->registerAssetBundle(GridScrollBarAsset::class);
 
 ?>
 <div class="record-index">

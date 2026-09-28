@@ -9,20 +9,15 @@ use yii\web\View;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 
+use app\assets\GridScrollBarAsset;
+
 /**
 * @var yii\web\View $this
 * @var int $count_result
 * @var \yii\data\ActiveDataProvider $dataProvider
 */
 
-$this->registerCssFile('assets/css/gridScrollBar.css', [
-    'depends' => [\yii\bootstrap5\BootstrapAsset::class], // или BootstrapPluginAsset
-]);
-
-$this->registerJsFile('assets/js/gridScrollBar.js', [
-    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
-    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
-]);
+$this->registerAssetBundle(GridScrollBarAsset::class);
 
 $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'default');
 ?>

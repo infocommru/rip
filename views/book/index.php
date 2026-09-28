@@ -6,6 +6,8 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\assets\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
  *  @var Book $model
@@ -15,6 +17,9 @@ $is_admin = $user->role == 1;
 
 $this->title = 'Книги';
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="book-index">
 
