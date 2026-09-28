@@ -1,6 +1,7 @@
 <?php
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this
  * @var yii\bootstrap5\ActiveForm $form
@@ -21,6 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php
                 $form = ActiveForm::begin([
                     'id' => 'login-form',
+                    'action' => Url::to(['/site/login']),
                     'fieldConfig' => [
                         'template' => "{label}\n{input}\n{error}",
                         'labelOptions' => ['class' => 'col-lg-1 col-form-label mr-lg-3'],

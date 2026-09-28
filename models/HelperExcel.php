@@ -28,7 +28,7 @@ class HelperExcel {
 
         $excel = Excel::open($filepath);
         $excel->dateFormatter(fn($value) => gmdate('d/m/Y', $value));//форматирование даты в формате d/m/Y
-        $sheet = $excel->sheet()->setReadAreaColumns('A:Q');
+        $sheet = $excel->sheet()->setReadAreaColumns('A:S');
 
         $statInfo = [
             'year1' => null,
@@ -182,6 +182,12 @@ class HelperExcel {
                             $record->rip_style = 4;*/
                         
                         break;
+                    case 'R':
+                        $record->num_crem_reg = (string)$v;
+                        break;
+                    case 'S':
+                        $record->num_crem_account = (string)$v;
+                        break;
                 }
             }
 
@@ -201,6 +207,8 @@ class HelperExcel {
                 'filename' => $record->filename,
                 'comment' => $record->comment,
                 'rip_style' => $record->rip_style,
+                'num_crem_reg' => $record->num_crem_reg,
+                'num_crem_account' => $record->num_crem_account,
             ]);
 
             if($query_last->exists()){
@@ -240,8 +248,8 @@ class HelperExcel {
                         'filename' => $record->filename,
                         'comment' => $record->comment,
                         'rip_style' => $record->rip_style,
-                        'num_crem_reg' => '',//заглушка
-                        'num_crem_account' => '',
+                        'num_crem_reg' => $record->num_crem_reg,
+                        'num_crem_account' => $record->num_crem_account,
                     ];
                 }
             }
@@ -273,8 +281,8 @@ class HelperExcel {
 
         if($updateStatus)
             $updateStatus(rtrim($logStr, PHP_EOL));
-
-        echo $logStr;
+        if (\Yii::$app instanceof \yii\console\Application)
+            echo $logStr;
 
         $statInfo['records'] = \app\models\Record::find()->andWhere(['book_id' => $bookId])->count();
 

@@ -6,6 +6,8 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\static\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
  *  @var app\models\Book $book
@@ -14,6 +16,9 @@ use yii\grid\GridView;
 */
 $this->title = $book->name;
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="record-index">
 
@@ -21,8 +26,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('Добавить запись', ['create', 'book_id' => $book_id], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('Экспорт Excel', "/web/record/export-excel?id=" . $book_id, ['class' => 'btn btn-warning']) ?>
-        <?= Html::a('Сбросить фильтры', "/web/record/index?book=" . $book_id, ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Экспорт Excel', ['export-excel', 'id' => $book_id] , ['class' => 'btn btn-warning']) ?>
+        <?= Html::a('Сбросить фильтры', ['index', 'book' => $book_id], ['class' => 'btn btn-info']) ?>
     </p>
 
 
@@ -33,7 +38,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'id',
-            //'book_id',
             [
                 'label' => 'Обновлено',
                 'value' => function ($model) {
@@ -85,6 +89,4 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]);
     ?>
-
-
 </div>

@@ -6,6 +6,8 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+use app\static\GridScrollBarAsset;
+
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
  *  @var string $flash
@@ -14,6 +16,9 @@ use yii\grid\GridView;
 */
 $this->title = "Записи, которые были удалены";
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="record-index">
     <?php if ($flash): ?>
@@ -77,24 +82,24 @@ $this->params['breadcrumbs'][] = $this->title;
                     // Изменяем стандартную кнопку update, чтобы добавить картинку
                     'update' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/edit.png', ['width' => '24px']), 
-                            ['/record/update', 'id' => $model->id], 
+                            Html::img(Url::to(['/img/edit.png']), ['width' => '24px']), 
+                            ['record/update', 'id' => $model->id], 
                             ['target' => '_blank', 'title' => 'редактировать']
                         );
                     },
                     // Кастомная кнопка для восстановления
                     'restore' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/restore.png', ['width' => '24px']), 
-                            ['/record/deleted', 'record_id' => $model->id, 'a' => 'restore'], 
+                            Html::img(Url::to(['/img/restore.png']), ['width' => '24px']), 
+                            ['record/deleted', 'record_id' => $model->id, 'a' => 'restore'], 
                             ['title' => 'восстановить']
                         );
                     },
                     // Кастомная кнопка для полного удаления
                     'delete' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/del.png', ['width' => '24px']), 
-                            ['/record/deleted', 'record_id' => $model->id, 'a' => 'del'], 
+                            Html::img(Url::to(['/img/del.png']), ['width' => '24px']), 
+                            ['record/deleted', 'record_id' => $model->id, 'a' => 'del'], 
                             ['title' => 'удалить']
                         );
                     },

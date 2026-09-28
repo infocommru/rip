@@ -105,7 +105,10 @@ class HelperImg {
         $files = array_map('basename', $files);
 
         $result = [];
-        $webPath = Yii::getAlias("@webimages") . '/' . str_replace('\\', '/', $dirpath['path']);
+        $webPath = Url::to([
+            '/image-viewer/image',
+            'filename' => str_replace('\\', '/', $dirpath['path']),
+        ]);
 
         foreach ($files as $file) {
             $upath = "$webPath/$file";

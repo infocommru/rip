@@ -11,6 +11,7 @@ $this->beginPage();
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
     <head>
+        <title>Просмотр изображений</title>
         <?php $this->head() ?>
     </head>
 

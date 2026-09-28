@@ -2,7 +2,9 @@
 
 use \app\models\Record;
 use \app\models\Helper;
+
 use yii\helpers\FileHelper;
+use yii\helpers\Url;
 
 /**
  * @var \Mpdf\Mpdf $mpdfObject
@@ -32,14 +34,14 @@ $normal = 'verdana';
 <html>
     <head>
         <style>
-            <?= file_get_contents(FileHelper::normalizePath(\Yii::getAlias('@app/assets/css/printer.css'))); ?>
+            <?= file_get_contents(FileHelper::normalizePath(\Yii::getAlias('@webroot/css/printer.css'))); ?>
         </style>
     </head>
     <body>
         <table>
             <tr>
                 <td class='title'>
-                    <div><img width='43px' src='/assets/img/print_logo.png' /></div>
+                    <div><img width='43px' src="<?= Yii::getAlias('@webroot/img/print_logo.png') ?>"></div>
                     <div class='upper_text'> 
                         Правительство Санкт-Петербурга <br />
                         Комитет по промышленной политике,<br />

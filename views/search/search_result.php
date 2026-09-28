@@ -9,20 +9,15 @@ use yii\web\View;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
 
+use app\static\GridScrollBarAsset;
+
 /**
 * @var yii\web\View $this
 * @var int $count_result
 * @var \yii\data\ActiveDataProvider $dataProvider
 */
 
-$this->registerCssFile('assets/css/search_result.css', [
-    'depends' => [\yii\bootstrap5\BootstrapAsset::class], // или BootstrapPluginAsset
-]);
-
-$this->registerJsFile('assets/js/search_result.js', [
-    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
-    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
-]);
+$this->registerAssetBundle(GridScrollBarAsset::class);
 
 $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'default');
 ?>
@@ -132,7 +127,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 if (!empty($model->filename)) {
                     $path = str_replace('\\', '/', $model->filename);
                     $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img('/assets/img/view.png', ['width' => '24px', 'alt' => 'просмотр']),
+                        \yii\helpers\Html::img(Url::to(['/img/view.png']), ['width' => '24px', 'alt' => 'просмотр']),
                         ['image-viewer/index', 'path' => $path],
                         [
                             'target' => '_blank',
@@ -145,8 +140,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 // 2. Требуется уточнить данные
                 if (empty($model->vopros)) {
                     $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img('/assets/img/vopros.png', ['width' => '24px', 'alt' => 'уточнить']),
-                        '#', // Избавление от javascript:
+                        \yii\helpers\Html::img(Url::to(['/img/vopros.png']), ['width' => '24px', 'alt' => 'уточнить']),
+                        '#',
                         [
                             'class' => 'btn-vopros', // По классу будет навешиваться событие
                             'data-id' => $model->record_id, // Передаем ID через data-атрибут
@@ -158,7 +153,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 // 3. История изменений
                 if (!empty($model->updated_at)) {
                     $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img('/assets/img/history.png', ['width' => '24px', 'alt' => 'история']),
+                        \yii\helpers\Html::img(Url::to(['/img/history.png']), ['width' => '24px', 'alt' => 'история']),
                         ['/record-history/index', 'record_id' => $model->record_id],
                         [
                             'target' => '_blank',
@@ -171,7 +166,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 
                 // 4. Печать
                 $links[] = \yii\helpers\Html::a(
-                    \yii\helpers\Html::img('/assets/img/print.png', ['width' => '24px', 'alt' => 'печать']),
+                    \yii\helpers\Html::img(Url::to(['/img/print.png']), ['width' => '24px', 'alt' => 'печать']),
                     ['/print/index', 'record_id' => $model->record_id],
                     [
                         'target' => '_blank',
@@ -184,7 +179,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 // 5. Редактирование (для пользователей с ролью != 2)
                 if ($user && $user->role != 2) {
                     $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img('/assets/img/edit.png', ['width' => '24px', 'alt' => 'редактировать']),
+                        \yii\helpers\Html::img(Url::to(['/img/edit.png']), ['width' => '24px', 'alt' => 'редактировать']),
                         ['/record/update', 'id' => $model->record_id],
                         [
                             'target' => '_blank',

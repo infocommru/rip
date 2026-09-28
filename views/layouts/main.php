@@ -2,12 +2,13 @@
 /** @var yii\web\View $this
 * @var string $content 
 */
-use app\assets\AppAsset;
+use app\static\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 
@@ -16,7 +17,6 @@ $this->registerMetaTag(['charset' => Yii::$app->charset], 'charset');
 $this->registerMetaTag(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1, shrink-to-fit=no']);
 $this->registerMetaTag(['name' => 'description', 'content' => $this->params['meta_description'] ?? '']);
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
-$this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.png')]);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -33,11 +33,11 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
             NavBar::begin([
                 'brandLabel' => Yii::$app->name,
                 'brandUrl' => Yii::$app->homeUrl,
-                'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+                'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark sticky-top']
             ]);
 
             $items = [
-                ['label' => 'Главная', 'url' => ['/site/index']],
+                ['label' => 'Главная', 'url' => Url::to(['/site/index'])],
             ];
 
             if (!Yii::$app->user->isGuest) {
@@ -45,42 +45,42 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 if ($user->role == 1) {
                     $items[] = ['label' => 'Кладбища',
                         'items' => [
-                            ['label' => 'Кладбища', 'url' => '/web/cemetery'],
-                            ['label' => 'Добавить', 'url' => '/web/cemetery/create'],
-                            ['label' => 'Логи загрузки', 'url' => ['/book-upload']]
+                            ['label' => 'Кладбища', 'url' => Url::to(['/cemetery'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/cemetery/create'])],
+                            ['label' => 'Логи загрузки', 'url' => Url::to(['/book-upload'])]
                         ],
                     ];
 
                     $items[] = ['label' => 'Книги',
                         'items' => [
-                            ['label' => 'Книги', 'url' => '/web/book'],
-                            ['label' => 'Добавить', 'url' => '/web/book/create'],
+                            ['label' => 'Книги', 'url' => Url::to(['/book'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/book/create'])],
                         ],
                     ];
 
                     $items[] = ['label' => 'Пользователи',
                         'items' => [
-                            ['label' => 'Пользователи', 'url' => '/web/user'],
-                            ['label' => 'Добавить', 'url' => '/web/user/create'],
+                            ['label' => 'Пользователи', 'url' => Url::to(['/user'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/user/create'])],
                         ],
                     ];
 
                 } else {
 
                     $items[] = ['label' => 'Книги',
-                        'url' => '/web/book'
+                        'url' => Url::to(['/book'])
                     ];
                 }
                 if (($user->role != 1) && ($user->role != 4)) {
                     $items[] = ['label' => 'Поиск',
-                        'url' => '/web/search'
+                        'url' => Url::to(['/search'])
                     ];
                 } else {
                     $items[] = ['label' => 'Поиск',
                         'items' => [
-                            ['label' => 'Поиск', 'url' => '/web/search'],
-                            ['label' => 'Неточные данные', 'url' => '/web/record/vopros'],
-                            ['label' => 'Удаленные данные', 'url' => '/web/record/deleted'],
+                            ['label' => 'Поиск', 'url' => Url::to(['/search'])],
+                            ['label' => 'Неточные данные', 'url' => Url::to(['/record/vopros'])],
+                            ['label' => 'Удаленные данные', 'url' => Url::to(['/record/deleted'])],
                         ],
                     ];
                 }
@@ -88,7 +88,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
             /** @var \app\models\User|null $user */
             $user = Yii::$app->user->identity;
-            $items[] = Yii::$app->user->isGuest ? ['label' => 'Войти', 'url' => ['/site/login']] : '<li class="nav-item">'
+            $items[] = Yii::$app->user->isGuest ? ['label' => 'Войти', 'url' => Url::to(['/site/login'])] : '<li class="nav-item">'
                     . Html::beginForm(['/site/logout'])
                     . Html::submitButton(
                             'Выйти (' . $user->username . ')',

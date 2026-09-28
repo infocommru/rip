@@ -13,7 +13,6 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@images' => '@app/upload/rip2',
-        '@webimages' => '/upload/rip2',
     ],
      'container' => [
         'definitions' => [
@@ -24,6 +23,7 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY'),
+            'baseUrl' => getenv('BASE_URL') === '/' ? '' : (getenv('BASE_URL') ? '/' . getenv('BASE_URL') : '')
         ],
         'redis' => [
 		    'class' => 'yii\redis\Connection',
@@ -71,8 +71,7 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-            ],
+            'rules' => [],
         ],
         
     ],

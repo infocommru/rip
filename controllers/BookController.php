@@ -36,7 +36,8 @@ class BookController extends Controller {
                             'delete' => ['POST'],
                             'rename-folder' => ['POST'],
                             'download-images' => ['POST'],
-                            'reload-image' => ['POST']
+                            'reload-image' => ['POST'],
+                            'update-book-records' => ['POST']
                         ],
                     ],
                     'access' => [
@@ -94,12 +95,29 @@ class BookController extends Controller {
     /**
      * Displays a single Book model.
      * @param int $id ID
-     * @return string|\yii\web\Response
+     * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView(int $id): string|\yii\web\Response {
+    public function actionView(int $id): string {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    /**
+     * Обновление содержимого книги
+     *
+     * @param integer $id
+     * @return \yii\web\Response
+     */
+    public function actionUpdateBookRecords(int $id): \yii\web\Response{
+        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1)
+            return $this->redirect(['/']);
+
         if($this->request->isPost) {
+            $overwrite = \Yii::$app->request->post('overwrite', false);
             $file = UploadedFile::getInstanceByName('excel');
+
             $validator = new FileValidator([
                 'extensions' => ['xlsx'],
                 'mimeTypes' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
@@ -107,18 +125,21 @@ class BookController extends Controller {
 
             if($validator->validate($file, $error)){
                 set_time_limit(0);
+
+                if($overwrite){
+                    Record::deleteAll(['book_id' => $id]);
+                    HelperCache::deleteBook($id);
+                }
+
                 \app\models\HelperExcel::processBookExcel($id, $file->tempName);
                 \Yii::$app->session->setFlash('success', 'Файл успешно обработан.');
             }
             else{
                 \Yii::$app->session->setFlash('error', 'Ошибка! ' . $error);
-                return $this->refresh();
             } 
         }
 
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        return $this->redirect(\Yii::$app->request->referrer);
     }
 
     /**
@@ -153,7 +174,7 @@ class BookController extends Controller {
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            \app\models\HelperCache::updateCache([$model]);
+            HelperCache::updateCache([$model]);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -174,7 +195,7 @@ class BookController extends Controller {
         $book->deleted = 1;
         $book->save();
 
-        \app\models\HelperCache::deleteBook($book->id);
+        HelperCache::deleteBook($book->id);
         return $this->redirect(['index']);
     }
 

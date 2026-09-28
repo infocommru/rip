@@ -5,6 +5,9 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\web\View;
+
+use app\static\GridScrollBarAsset;
 
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
@@ -13,6 +16,9 @@ use yii\grid\GridView;
 */
 $this->title = "Записи, требующие уточнения";
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerAssetBundle(GridScrollBarAsset::class);
+
 ?>
 <div class="record-index">
 

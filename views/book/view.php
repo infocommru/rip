@@ -25,7 +25,7 @@ $obloshka = \app\models\HelperImg::getTitleImage($model);
 
     <p>
         <?php if ($is_admin) echo Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']); ?>
-        <?php echo Html::a('Смотреть записи', "/web/record?book=" . $model->id, ['class' => 'btn btn-primary']); ?>
+        <?php echo Html::a('Смотреть записи', ['/record', 'book' => $model->id ], ['class' => 'btn btn-primary']); ?>
         <?php if ($obloshka): ?>
             <a target="_blank" class='btn btn-primary' href='<?= $obloshka ?>'>Обложка</a>
         <?php endif; ?>
@@ -87,12 +87,23 @@ $obloshka = \app\models\HelperImg::getTitleImage($model);
             <?php
                  ActiveForm::begin([
                     'method' => 'post',
-                    'options' => ['enctype' => 'multipart/form-data']
+                    'options' => ['enctype' => 'multipart/form-data'],
+                    'action' => ['update-book-records', 'id' => $model->id ]
                 ]);
 
                 echo Html::fileInput('excel', null, 
                     ['class' => 'form-control', 'accept' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
+
+                echo '<div class="mt-2">';
+                echo Html::checkbox('overwrite', false, [
+                    'label' => 'Стереть существующие записи',
+                    'class' => 'form-check-input'
+                ]);
+                echo '</div>';
+
+                echo '<div class="mt-2">';
                 echo Html::submitButton('Отправить', ['class' => 'btn btn-primary mt-2']);
+                echo '</div>';
 
                 ActiveForm::end();
             ?>

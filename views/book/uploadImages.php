@@ -1,5 +1,4 @@
 <?php
-use yii\helpers\Html;
 use \app\models\Record;
 use yii\grid\GridView;
 use yii\data\ActiveDataProvider;
@@ -7,7 +6,10 @@ use \app\models\HelperImg;
 use yii\widgets\ActiveForm;
 use app\models\Book;
 use yii\grid\ActionColumn;
+
 use yii\helpers\FileHelper;
+use yii\helpers\Url;
+use yii\helpers\Html;
 
 /**
  * @var yii\web\View $this
@@ -95,7 +97,7 @@ if(!$titlePath['path'])
     <?php
         $dataProvider = new ActiveDataProvider([
             'query' => Record::find()->select(['filename', 'book_id'])->
-                    andWhere(['book_id' => $book->id ])->distinct(), 
+                    andWhere(['book_id' => $book->id, 'deleted' => 0 ])->distinct(), 
             
             'pagination' => [
                 'pageSize' => 50, // Количество элементов на страницу
@@ -150,7 +152,7 @@ if(!$titlePath['path'])
                             . Html::hiddenInput('id', $record->book->id)
                             . Html::hiddenInput('filename', $record->filename)
                             . Html::button(
-                                Html::img('/assets/img/edit.png', ['width' => '24px']),
+                                Html::img(Url::to(['/img/edit.png']), ['width' => '24px']),
                                 [
                                     'type' => 'button',
                                     'class' => 'btn btn-sm p-0',
@@ -167,7 +169,7 @@ if(!$titlePath['path'])
                                 return '';
 
                             return Html::a(
-                                Html::img('/assets/img/view.png', ['width' => '24px']),
+                                Html::img(Url::to(['/img/view.png']), ['width' => '24px']),
                                 ['image-viewer/index', 'path' => str_replace('\\', '/', $record->filename) ],
                                 [
                                     'class' => 'btn btn-sm p-0',
