@@ -3,28 +3,14 @@
     border:2px solid red;
 }
 
+/* Включаем горизонтальную прокрутку для блока таблицы */
+.grid-view {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
 .container{
     max-width:1800px !important;
-}
-
-
-.bottom_img_offet1{
-    margin-top: 0px;
-}
-.bottom_img_offet2{
-    margin-top: -300px;
-}
-
-.bottom_img_offet3{
-    margin-top: -600px;
-}
-
-.bottom_img_offet4{
-    margin-top: -900px;
-}
-
-.bottom_img_offet5{
-    margin-top: -1200px;
 }
 
 .search_btn{

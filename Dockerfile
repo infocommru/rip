@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libmagickwand-dev \
     ghostscript \
-    unzip \
+    unzip nano \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Настраиваем и устанавливаем расширения PHP через официальные утилиты

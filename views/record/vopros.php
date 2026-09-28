@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\web\View;
 
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
@@ -13,6 +14,17 @@ use yii\grid\GridView;
 */
 $this->title = "Записи, требующие уточнения";
 $this->params['breadcrumbs'][] = $this->title;
+
+$this->registerCssFile('assets/css/gridScrollBar.css', [
+    'depends' => [\yii\bootstrap5\BootstrapAsset::class], // или BootstrapPluginAsset
+]);
+
+
+$this->registerJsFile('assets/js/gridScrollBar.js', [
+    'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
+    'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
+]);
+
 ?>
 <div class="record-index">
 

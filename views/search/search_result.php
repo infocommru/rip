@@ -15,11 +15,11 @@ use yii\widgets\Pjax;
 * @var \yii\data\ActiveDataProvider $dataProvider
 */
 
-$this->registerCssFile('assets/css/search_result.css', [
+$this->registerCssFile('assets/css/gridScrollBar.css', [
     'depends' => [\yii\bootstrap5\BootstrapAsset::class], // или BootstrapPluginAsset
 ]);
 
-$this->registerJsFile('assets/js/search_result.js', [
+$this->registerJsFile('assets/js/gridScrollBar.js', [
     'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
     'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
 ]);

@@ -580,17 +580,11 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
     main > .container {
         padding-left: 0px !important;
         padding-right: 0px !important;
-        max-width:100% !important;
     }
 
     #filter-container {
         padding-left: 15px !important;
         padding-right: 15px !important;
-
-        margin-left: auto;
-        margin-right: auto;
-
-        max-width:1800px !important;
     }
 
     #search_results {
