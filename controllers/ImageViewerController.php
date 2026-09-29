@@ -7,6 +7,7 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\FileHelper;
 use yii\web\NotFoundHttpException;
+use yii\helpers\Url;
 use Yii;
 
 class ImageViewerController extends Controller {
@@ -15,21 +16,21 @@ class ImageViewerController extends Controller {
      */
     public function behaviors() {
         return array_merge(
-                parent::behaviors(),
-                [
-                    'verbs' => [
-                        'class' => VerbFilter::className(),
-                    ],
-                    'access' => [
-                        'class' => AccessControl::className(),
-                        'rules' => [
-                            [
-                                'allow' => true,
-                                'roles' => ['@'],
-                            ],
+            parent::behaviors(),
+            [
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                ],
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
                         ],
                     ],
-                ]
+                ],
+            ]
         );
     }
 
@@ -46,10 +47,33 @@ class ImageViewerController extends Controller {
         if(!is_file($filePath))
             throw new NotFoundHttpException("Файл $path не найден");
 
-        $path = str_replace('\\', '/', Yii::getAlias("@webimages/{$path}"));
+        $path = Url::to([
+            '/image-viewer/image',
+            'filename' => str_replace('\\', '/', $path),
+        ]);
 
         return $this->render('index', [
             'path' => $path,
         ]);
+    }
+
+    /**
+     * Возвращает файл изображаения по указанному пути
+     *
+     * @param string $filename
+     * @return string
+     */
+    public function actionImage(string $filename): string
+    {
+        $file = FileHelper::normalizePath(Yii::getAlias("@images/{$filename}"));
+
+        if (!is_file($file)) {
+            throw new \yii\web\NotFoundHttpException('Файл не найлен');
+        }
+
+        Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
+        Yii::$app->response->headers->set('Content-Type', 'image/jpeg');
+
+        return file_get_contents($file);
     }
 }

@@ -14,7 +14,6 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
         '@images' => '@app/upload/rip2',
-        '@webimages' => '/upload/rip2',
     ],
     'components' => [
     	'redis' => [

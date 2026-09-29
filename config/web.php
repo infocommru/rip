@@ -13,7 +13,6 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@images' => '@app/upload/rip2',
-        '@webimages' => '/upload/rip2',
     ],
      'container' => [
         'definitions' => [
