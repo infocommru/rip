@@ -16,9 +16,9 @@ $role = $user->role ?? 0;
             <p class="lead">Контрольно-поисковая система.</p>
 
             <?php if (!Yii::$app->user->isGuest): ?>
-                <p><a class="btn btn-lg btn-success" href="/web/cemetery">Кладбища</a></p>
+                <p><a class="btn btn-lg btn-success" href="/cemetery">Кладбища</a></p>
             <?php else: ?>
-                <p><a class="btn btn-lg btn-success" href="/web/site/login">Войти</a></p>
+                <p><a class="btn btn-lg btn-success" href="/site/login">Войти</a></p>
             <?php endif; ?>
         </div>
     <?php else: ?>

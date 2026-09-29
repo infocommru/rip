@@ -2,7 +2,7 @@
 /** @var yii\web\View $this
 * @var string $content 
 */
-use app\assets\AppAsset;
+use app\static\AppAsset;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
@@ -44,42 +44,42 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
                 if ($user->role == 1) {
                     $items[] = ['label' => 'Кладбища',
                         'items' => [
-                            ['label' => 'Кладбища', 'url' => '/web/cemetery'],
-                            ['label' => 'Добавить', 'url' => '/web/cemetery/create'],
+                            ['label' => 'Кладбища', 'url' => '/cemetery'],
+                            ['label' => 'Добавить', 'url' => '/cemetery/create'],
                             ['label' => 'Логи загрузки', 'url' => ['/book-upload']]
                         ],
                     ];
 
                     $items[] = ['label' => 'Книги',
                         'items' => [
-                            ['label' => 'Книги', 'url' => '/web/book'],
-                            ['label' => 'Добавить', 'url' => '/web/book/create'],
+                            ['label' => 'Книги', 'url' => '/book'],
+                            ['label' => 'Добавить', 'url' => '/book/create'],
                         ],
                     ];
 
                     $items[] = ['label' => 'Пользователи',
                         'items' => [
-                            ['label' => 'Пользователи', 'url' => '/web/user'],
-                            ['label' => 'Добавить', 'url' => '/web/user/create'],
+                            ['label' => 'Пользователи', 'url' => '/user'],
+                            ['label' => 'Добавить', 'url' => '/user/create'],
                         ],
                     ];
 
                 } else {
 
                     $items[] = ['label' => 'Книги',
-                        'url' => '/web/book'
+                        'url' => '/book'
                     ];
                 }
                 if (($user->role != 1) && ($user->role != 4)) {
                     $items[] = ['label' => 'Поиск',
-                        'url' => '/web/search'
+                        'url' => '/search'
                     ];
                 } else {
                     $items[] = ['label' => 'Поиск',
                         'items' => [
-                            ['label' => 'Поиск', 'url' => '/web/search'],
-                            ['label' => 'Неточные данные', 'url' => '/web/record/vopros'],
-                            ['label' => 'Удаленные данные', 'url' => '/web/record/deleted'],
+                            ['label' => 'Поиск', 'url' => '/search'],
+                            ['label' => 'Неточные данные', 'url' => '/record/vopros'],
+                            ['label' => 'Удаленные данные', 'url' => '/record/deleted'],
                         ],
                     ];
                 }

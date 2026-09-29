@@ -6,7 +6,7 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
-use app\assets\GridScrollBarAsset;
+use app\static\GridScrollBarAsset;
 
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
@@ -82,7 +82,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Изменяем стандартную кнопку update, чтобы добавить картинку
                     'update' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/edit.png', ['width' => '24px']), 
+                            Html::img('/static/img/edit.png', ['width' => '24px']), 
                             ['/record/update', 'id' => $model->id], 
                             ['target' => '_blank', 'title' => 'редактировать']
                         );
@@ -90,7 +90,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Кастомная кнопка для восстановления
                     'restore' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/restore.png', ['width' => '24px']), 
+                            Html::img('/static/img/restore.png', ['width' => '24px']), 
                             ['/record/deleted', 'record_id' => $model->id, 'a' => 'restore'], 
                             ['title' => 'восстановить']
                         );
@@ -98,7 +98,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Кастомная кнопка для полного удаления
                     'delete' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img('/assets/img/del.png', ['width' => '24px']), 
+                            Html::img('/static/img/del.png', ['width' => '24px']), 
                             ['/record/deleted', 'record_id' => $model->id, 'a' => 'del'], 
                             ['title' => 'удалить']
                         );

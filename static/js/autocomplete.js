@@ -16,7 +16,7 @@ const initAutocomplete = (selector, variableNames) => {
             }
 
             $.ajax({
-                url: "/web/search/search-suggest",
+                url: "/search/search-suggest",
                 dataType: "json",
                 data: {
                     q: term,

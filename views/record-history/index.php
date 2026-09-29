@@ -9,7 +9,7 @@ use yii\grid\ActionColumn;
 use yii\grid\GridView;
 use yii\widgets\DetailView;
 
-use app\assets\GridScrollBarAsset;
+use app\static\GridScrollBarAsset;
 
 /** @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider

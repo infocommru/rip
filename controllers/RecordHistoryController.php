@@ -49,7 +49,7 @@ class RecordHistoryController extends Controller {
      */
     public function actionIndex($record_id = 0) {
         if (!$record_id) {
-            return $this->redirect("/web/search/index");
+            return $this->redirect("/search/index");
         }
         $dataProvider = new ActiveDataProvider([
             'query' => RecordHistory::find()

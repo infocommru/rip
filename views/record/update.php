@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use app\models\HelperImg;
-use app\assets\OpenSeadragonAsset;
+use app\static\OpenSeadragonAsset;
 
 /** @var yii\web\View $this
  * @var app\models\Record $model
@@ -14,7 +14,7 @@ use app\assets\OpenSeadragonAsset;
 $this->title = $model->book->name . ", запись #" . $model->id;
 
 if ($user->role == 1) {
-    $this->params['breadcrumbs'][] = ['label' => $model->book->name, 'url' => "/web/record/index?book=" . $model->book_id];
+    $this->params['breadcrumbs'][] = ['label' => $model->book->name, 'url' => "/record/index?book=" . $model->book_id];
     $this->params['breadcrumbs'][] = ['label' => '#' . $model->id, 'url' => ['view', 'id' => $model->id]];
     $this->params['breadcrumbs'][] = 'Обновить';
 } else {
@@ -49,7 +49,7 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
                 drawer: "html",
             });
         
-            fetch('/web/book/get-images-path?book_id=<?= json_encode($model->book->id) ?>')
+            fetch('/book/get-images-path?book_id=<?= json_encode($model->book->id) ?>')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
@@ -154,21 +154,21 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
         <div class="row">
             <?php if ($prev): ?>
                 <div class="col-sm">
-                    <a id="go_b" href="/web/record/update?id=<?= $prev->id ?>" class="btn btn-link">&#129044; Назад</a>
+                    <a id="go_b" href="/record/update?id=<?= $prev->id ?>" class="btn btn-link">&#129044; Назад</a>
                 </div>
             <?php endif; ?>
             <?php if ($next): ?>
                 <div class="col-sm">
-                    <a id="go_f" href="/web/record/update?id=<?= $next->id ?>" class="btn btn-link">Вперед &#10132;</a>
+                    <a id="go_f" href="/record/update?id=<?= $next->id ?>" class="btn btn-link">Вперед &#10132;</a>
                 </div>
             <?php endif; ?>
             <?php if ($model->updated_at): ?>
                 <div class="col-sm">
-                    <a  id="go_ff" href="/web/record-history/?record_id=<?= $model->id ?>" class="btn btn-info">История изменений</a>
+                    <a  id="go_ff" href="/record-history/?record_id=<?= $model->id ?>" class="btn btn-info">История изменений</a>
                 </div>
             <?php endif; ?>
             <div class="col-sm">
-                <a target="_blank" id="go_new" href="/web/record/create?book_id=<?= $model->book_id ?>" class="btn btn-danger">Создать новую</a>
+                <a target="_blank" id="go_new" href="/record/create?book_id=<?= $model->book_id ?>" class="btn btn-danger">Создать новую</a>
             </div>
         </div>
     </div>

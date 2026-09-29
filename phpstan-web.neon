@@ -6,7 +6,7 @@ parameters:
         - jobs
         - models
         - views
-        - assets
+        - static
         - widgets
 
     tmpDir: %currentWorkingDirectory%/runtime

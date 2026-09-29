@@ -6,7 +6,7 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
-use app\assets\GridScrollBarAsset;
+use app\static\GridScrollBarAsset;
 
 /** @var yii\web\View $this
  *  @var yii\data\ActiveDataProvider $dataProvider
@@ -26,8 +26,8 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
 
     <p>
         <?= Html::a('Добавить запись', ['create', 'book_id' => $book_id], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('Экспорт Excel', "/web/record/export-excel?id=" . $book_id, ['class' => 'btn btn-warning']) ?>
-        <?= Html::a('Сбросить фильтры', "/web/record/index?book=" . $book_id, ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Экспорт Excel', "/record/export-excel?id=" . $book_id, ['class' => 'btn btn-warning']) ?>
+        <?= Html::a('Сбросить фильтры', "/record/index?book=" . $book_id, ['class' => 'btn btn-info']) ?>
     </p>
 
 

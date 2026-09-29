@@ -173,7 +173,7 @@ class PrintController extends Controller {
 
         $pdf = new \Mpdf\Mpdf([
             'fontDir' => array_merge($fontDirs, [
-                FileHelper::normalizePath(Yii::getAlias("@app/assets/fonts")),
+                FileHelper::normalizePath(Yii::getAlias("@app/static/fonts")),
             ]),
             'fontdata' => array_merge($fontData, [ // lowercase letters only in font key
                 'verdana' => [

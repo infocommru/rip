@@ -23,7 +23,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="print-view">
     <h5><?= Html::encode($this->title) ?></h5>
     
-    <form method="get" action="/web/print/forma">
+    <form method="get" action="/print/forma">
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">

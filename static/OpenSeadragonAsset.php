@@ -1,5 +1,5 @@
 <?php
-namespace app\assets;
+namespace app\static;
 use yii\web\AssetBundle;
 
 class OpenSeadragonAsset extends AssetBundle
