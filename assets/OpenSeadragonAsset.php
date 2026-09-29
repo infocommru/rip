@@ -17,4 +17,15 @@ class OpenSeadragonAsset extends AssetBundle
             'images/*', // Важно: публикуем иконки кнопок (плюс, минус, полный экран)
         ],
     ];
+
+    public function registerAssetFiles($view)
+    {
+        parent::registerAssetFiles($view);
+
+        $view->registerLinkTag([
+            'rel' => 'icon',
+            'type' => 'image/png',
+            'href' => \Yii::getAlias('@web/favicon.png'),
+        ]);
+    }
 }

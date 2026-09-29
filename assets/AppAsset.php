@@ -29,4 +29,15 @@ class AppAsset extends AssetBundle
         'yii\jui\JuiAsset',
         'yii\bootstrap5\BootstrapAsset'
     ];
+
+    public function registerAssetFiles($view)
+    {
+        parent::registerAssetFiles($view);
+
+        $view->registerLinkTag([
+            'rel' => 'icon',
+            'type' => 'image/png',
+            'href' => \Yii::getAlias('@web/favicon.png'),
+        ]);
+    }
 }

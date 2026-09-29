@@ -24,10 +24,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const printButton = new OpenSeadragon.Button({
-        tooltip: '',
+        tooltip: 'Печать',
         srcRest: '/assets/img/printer.png',
         srcHover: '/assets/img/printer_hover.png',
         srcDown: '/assets/img/printer_hover.png',
+        srcGroup: `/assets/img/printer.png`,
 
         onClick: function () {
             printImage("<?= $path ?>");
