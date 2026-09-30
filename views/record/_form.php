@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\models\HelperImg;
 use yii\helpers\StringHelper;
+use yii\helpers\Url;
 use yii\web\View;
 
 /** @var yii\web\View $this
@@ -12,7 +13,7 @@ use yii\web\View;
 * @var bool $is_create
 */
 
-$this->registerJsFile(getenv('BASE_URL') . 'static/js/yandex_speller.js', [
+$this->registerJsFile(Url::to(['/js/yandex_speller.js']), [
     'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
     'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
 ]);

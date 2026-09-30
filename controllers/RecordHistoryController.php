@@ -9,6 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 
 /**
  * RecordHistoryController implements the CRUD actions for RecordHistory model.
@@ -49,7 +50,7 @@ class RecordHistoryController extends Controller {
      */
     public function actionIndex($record_id = 0) {
         if (!$record_id) {
-            return $this->redirect("/search/index");
+            return $this->redirect(Url::to(['/search/index']));
         }
         $dataProvider = new ActiveDataProvider([
             'query' => RecordHistory::find()

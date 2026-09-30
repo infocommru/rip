@@ -155,12 +155,12 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
         <div class="row">
             <?php if ($prev): ?>
                 <div class="col-sm">
-                    <a id="go_b" href="/record/update?id=<?= $prev->id ?>" class="btn btn-link">&#129044; Назад</a>
+                    <a id="go_b" href=<?= Url::to(['/record/update', 'id' => $prev->id]) ?> class="btn btn-link">&#129044; Назад</a>
                 </div>
             <?php endif; ?>
             <?php if ($next): ?>
                 <div class="col-sm">
-                    <a id="go_f" href="/record/update?id=<?= $next->id ?>" class="btn btn-link">Вперед &#10132;</a>
+                    <a id="go_f" href=<?= Url::to(['/record/update', 'id' => $next->id]) ?> class="btn btn-link">Вперед &#10132;</a>
                 </div>
             <?php endif; ?>
             <?php if ($model->updated_at): ?>
@@ -169,7 +169,7 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
                 </div>
             <?php endif; ?>
             <div class="col-sm">
-                <a target="_blank" id="go_new" href=<?= Url::to(['create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
+                <a target="_blank" id="go_new" href=<?= Url::to(['/create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
             </div>
         </div>
     </div>

@@ -31,7 +31,7 @@ class AppAsset extends AssetBundle
         parent::init();
 
         $this->css = [
-            Url::to(['static/css/site.css'])
+            Url::to(['/css/site.css'])
         ];
     }
 

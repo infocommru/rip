@@ -14,11 +14,11 @@ class GridScrollBarAsset extends AssetBundle
         parent::init();
 
         $this->css = [
-            Url::to(['static/css/gridScrollBar.css'])
+            Url::to(['/css/gridScrollBar.css'])
         ];
 
          $this->js = [
-            Url::to(['static/js/gridScrollBar.js'])
+            Url::to(['/js/gridScrollBar.js'])
         ];
     }
 

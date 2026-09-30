@@ -82,7 +82,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Изменяем стандартную кнопку update, чтобы добавить картинку
                     'update' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img(Url::to(['static/img/edit.png']), ['width' => '24px']), 
+                            Html::img(Url::to(['/img/edit.png']), ['width' => '24px']), 
                             ['record/update', 'id' => $model->id], 
                             ['target' => '_blank', 'title' => 'редактировать']
                         );
@@ -90,7 +90,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Кастомная кнопка для восстановления
                     'restore' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img(Url::to(['static/img/restore.png']), ['width' => '24px']), 
+                            Html::img(Url::to(['/img/restore.png']), ['width' => '24px']), 
                             ['record/deleted', 'record_id' => $model->id, 'a' => 'restore'], 
                             ['title' => 'восстановить']
                         );
@@ -98,7 +98,7 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     // Кастомная кнопка для полного удаления
                     'delete' => function ($url, $model, $key) {
                         return Html::a(
-                            Html::img(Url::to(['static/img/del.png']), ['width' => '24px']), 
+                            Html::img(Url::to(['/img/del.png']), ['width' => '24px']), 
                             ['record/deleted', 'record_id' => $model->id, 'a' => 'del'], 
                             ['title' => 'удалить']
                         );
