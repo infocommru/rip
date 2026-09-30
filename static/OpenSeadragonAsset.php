@@ -1,6 +1,7 @@
 <?php
 namespace app\static;
 use yii\web\AssetBundle;
+use yii\helpers\Url;
 
 class OpenSeadragonAsset extends AssetBundle
 {
@@ -25,7 +26,7 @@ class OpenSeadragonAsset extends AssetBundle
         $view->registerLinkTag([
             'rel' => 'icon',
             'type' => 'image/png',
-            'href' => \Yii::getAlias('@web/favicon.png'),
+            'href' => Url::to(['/favicon.png']),
         ]);
     }
 }

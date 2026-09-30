@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 $this->title = 'Сведения о захоронениях г. Санкт-Петербурга';
@@ -16,9 +17,9 @@ $role = $user->role ?? 0;
             <p class="lead">Контрольно-поисковая система.</p>
 
             <?php if (!Yii::$app->user->isGuest): ?>
-                <p><a class="btn btn-lg btn-success" href="/cemetery">Кладбища</a></p>
+                <p><a class="btn btn-lg btn-success" href="<?= Url::to(['/cemetery']) ?>">Кладбища</a></p>
             <?php else: ?>
-                <p><a class="btn btn-lg btn-success" href="/site/login">Войти</a></p>
+                <p><a class="btn btn-lg btn-success" href="<?= Url::to(['/site/login']) ?>">Войти</a></p>
             <?php endif; ?>
         </div>
     <?php else: ?>

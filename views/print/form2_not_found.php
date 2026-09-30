@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\web\View;
 
 use yii\widgets\DetailView;
@@ -23,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="print-view">
     <h5><?= Html::encode($this->title) ?></h5>
     
-    <form method="get" action="/print/forma">
+    <form method="get" action="<?= Url::to(['/print/forma']) ?>">
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">

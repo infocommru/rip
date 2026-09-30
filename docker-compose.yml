@@ -23,6 +23,7 @@ services:
       - YII2_ENV=${YII2_ENV}
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_INITIAL_ADMIN_PASSWORD}
       - TZ=${TIMEZONE}
+      - BASE_URL=${BASE_URL}
     depends_on:
       - mysql
       - redis

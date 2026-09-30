@@ -27,9 +27,8 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
 
     <p>
         <?php if ($is_admin) echo Html::a('Добавить книгу', ['create'], ['class' => 'btn btn-success']); ?>
-        <?= Html::a('Сбросить фильтры', "/book/index", ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Сбросить фильтры', ['index'], ['class' => 'btn btn-info']) ?>
     </p>
-
 
     <?=
     GridView::widget([
@@ -73,6 +72,4 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
         ],
     ]);
     ?>
-
-
 </div>

@@ -17,9 +17,9 @@ use yii\web\View;
  * @var false|array<string, mixed> $search_data
 */
 
-$this->registerCssFile('/static/css/jquery_styles.css', ['depends' => [\yii\jui\JuiAsset::class]]);
+$this->registerCssFile(getenv('BASE_URL'). '/static/css/jquery_styles.css', ['depends' => [\yii\jui\JuiAsset::class]]);
 
-$this->registerJsFile('static/js/autocomplete.js', [
+$this->registerJsFile(getenv('BASE_URL'). '/static/js/autocomplete.js', [
     'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
     'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
 ]);

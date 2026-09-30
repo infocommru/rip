@@ -24,6 +24,9 @@ $config = [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => getenv('COOKIE_VALIDATION_KEY'),
         ],
+        'assetManager' => [
+            'baseUrl' => getenv('BASE_URL') . "/assets",
+        ],
         'redis' => [
 		    'class' => 'yii\redis\Connection',
 		    'hostname' => 'redis',
@@ -70,8 +73,8 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules' => [
-            ],
+            'baseUrl' => getenv('BASE_URL'),
+            'rules' => [],
         ],
         
     ],

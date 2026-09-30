@@ -8,6 +8,7 @@ use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 
@@ -36,7 +37,7 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
             ]);
 
             $items = [
-                ['label' => 'Главная', 'url' => ['/site/index']],
+                ['label' => 'Главная', 'url' => Url::to(['/site/index'])],
             ];
 
             if (!Yii::$app->user->isGuest) {
@@ -44,42 +45,42 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
                 if ($user->role == 1) {
                     $items[] = ['label' => 'Кладбища',
                         'items' => [
-                            ['label' => 'Кладбища', 'url' => '/cemetery'],
-                            ['label' => 'Добавить', 'url' => '/cemetery/create'],
-                            ['label' => 'Логи загрузки', 'url' => ['/book-upload']]
+                            ['label' => 'Кладбища', 'url' => Url::to(['/cemetery'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/cemetery/create'])],
+                            ['label' => 'Логи загрузки', 'url' => Url::to(['/book-upload'])]
                         ],
                     ];
 
                     $items[] = ['label' => 'Книги',
                         'items' => [
-                            ['label' => 'Книги', 'url' => '/book'],
-                            ['label' => 'Добавить', 'url' => '/book/create'],
+                            ['label' => 'Книги', 'url' => Url::to(['/book'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/book/create'])],
                         ],
                     ];
 
                     $items[] = ['label' => 'Пользователи',
                         'items' => [
-                            ['label' => 'Пользователи', 'url' => '/user'],
-                            ['label' => 'Добавить', 'url' => '/user/create'],
+                            ['label' => 'Пользователи', 'url' => Url::to(['/user'])],
+                            ['label' => 'Добавить', 'url' => Url::to(['/user/create'])],
                         ],
                     ];
 
                 } else {
 
                     $items[] = ['label' => 'Книги',
-                        'url' => '/book'
+                        'url' => Url::to(['/book'])
                     ];
                 }
                 if (($user->role != 1) && ($user->role != 4)) {
                     $items[] = ['label' => 'Поиск',
-                        'url' => '/search'
+                        'url' => Url::to(['/search'])
                     ];
                 } else {
                     $items[] = ['label' => 'Поиск',
                         'items' => [
-                            ['label' => 'Поиск', 'url' => '/search'],
-                            ['label' => 'Неточные данные', 'url' => '/record/vopros'],
-                            ['label' => 'Удаленные данные', 'url' => '/record/deleted'],
+                            ['label' => 'Поиск', 'url' => Url::to(['/search'])],
+                            ['label' => 'Неточные данные', 'url' => Url::to(['/record/vopros'])],
+                            ['label' => 'Удаленные данные', 'url' => Url::to(['/record/deleted'])],
                         ],
                     ];
                 }
@@ -87,7 +88,7 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 
             /** @var \app\models\User|null $user */
             $user = Yii::$app->user->identity;
-            $items[] = Yii::$app->user->isGuest ? ['label' => 'Войти', 'url' => ['/site/login']] : '<li class="nav-item">'
+            $items[] = Yii::$app->user->isGuest ? ['label' => 'Войти', 'url' => Url::to(['/site/login'])] : '<li class="nav-item">'
                     . Html::beginForm(['/site/logout'])
                     . Html::submitButton(
                             'Выйти (' . $user->username . ')',

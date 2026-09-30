@@ -2,6 +2,7 @@
 
 use \app\models\Helper;
 use yii\helpers\FileHelper;
+use yii\helpers\Url;
 
 /**
  * @var \Mpdf\Mpdf $mpdfObject
@@ -34,7 +35,7 @@ $normal = 'verdana';
         <table>
             <tr>
                 <td class="title">
-                    <div><img width='43px' src='/static/img/print_logo.png' /></div>
+                    <div><img width='43px' src=<?= Url::to(['/static/img/print_logo.png']) ?> /></div>
                     <div class='upper_text'> 
                         Правительство Санкт-Петербурга <br />
                         Комитет по промышленной политике,<br />

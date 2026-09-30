@@ -8,6 +8,7 @@
 namespace app\static;
 
 use yii\web\AssetBundle;
+use yii\helpers\Url;
 
 /**
  * Main application asset bundle.
@@ -17,11 +18,6 @@ use yii\web\AssetBundle;
  */
 class AppAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
-    public $baseUrl = '@web';
-    public $css = [
-        '/static/css/site.css',
-    ];
     public $js = [
     ];
     public $depends = [
@@ -30,6 +26,15 @@ class AppAsset extends AssetBundle
         'yii\bootstrap5\BootstrapAsset'
     ];
 
+    public function init()
+    {
+        parent::init();
+
+        $this->css = [
+            Url::to(['static/css/site.css'])
+        ];
+    }
+
     public function registerAssetFiles($view)
     {
         parent::registerAssetFiles($view);
@@ -37,7 +42,7 @@ class AppAsset extends AssetBundle
         $view->registerLinkTag([
             'rel' => 'icon',
             'type' => 'image/png',
-            'href' => \Yii::getAlias('@web/favicon.png'),
+            'href' => Url::to(['/favicon.png']),
         ]);
     }
 }

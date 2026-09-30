@@ -26,8 +26,8 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
 
     <p>
         <?= Html::a('Добавить запись', ['create', 'book_id' => $book_id], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('Экспорт Excel', "/record/export-excel?id=" . $book_id, ['class' => 'btn btn-warning']) ?>
-        <?= Html::a('Сбросить фильтры', "/record/index?book=" . $book_id, ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Экспорт Excel', ['export-excel', 'id' => $book_id] , ['class' => 'btn btn-warning']) ?>
+        <?= Html::a('Сбросить фильтры', ['index', 'book' => $book_id], ['class' => 'btn btn-info']) ?>
     </p>
 
 
@@ -38,7 +38,6 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'id',
-            //'book_id',
             [
                 'label' => 'Обновлено',
                 'value' => function ($model) {
@@ -90,6 +89,4 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
         ],
     ]);
     ?>
-
-
 </div>

@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use app\models\HelperImg;
 use app\static\OpenSeadragonAsset;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this
  * @var app\models\Record $model
@@ -14,7 +15,7 @@ use app\static\OpenSeadragonAsset;
 $this->title = $model->book->name . ", запись #" . $model->id;
 
 if ($user->role == 1) {
-    $this->params['breadcrumbs'][] = ['label' => $model->book->name, 'url' => "/record/index?book=" . $model->book_id];
+    $this->params['breadcrumbs'][] = ['label' => $model->book->name, 'url' => ['/record/index', 'book' => $model->book_id]];
     $this->params['breadcrumbs'][] = ['label' => '#' . $model->id, 'url' => ['view', 'id' => $model->id]];
     $this->params['breadcrumbs'][] = 'Обновить';
 } else {
@@ -49,7 +50,7 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
                 drawer: "html",
             });
         
-            fetch('/book/get-images-path?book_id=<?= json_encode($model->book->id) ?>')
+            fetch('<?= \yii\helpers\Url::to(['/book/get-images-path', 'book_id' => $model->book->id]) ?>')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
@@ -164,11 +165,11 @@ $imagesUrl = $assetBundle->baseUrl . '/images/';
             <?php endif; ?>
             <?php if ($model->updated_at): ?>
                 <div class="col-sm">
-                    <a  id="go_ff" href="/record-history/?record_id=<?= $model->id ?>" class="btn btn-info">История изменений</a>
+                    <a  id="go_ff" href=<?= Url::to(['/record-history', 'record_id' => $model->id]) ?> class="btn btn-info">История изменений</a>
                 </div>
             <?php endif; ?>
             <div class="col-sm">
-                <a target="_blank" id="go_new" href="/record/create?book_id=<?= $model->book_id ?>" class="btn btn-danger">Создать новую</a>
+                <a target="_blank" id="go_new" href=<?= Url::to(['create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
             </div>
         </div>
     </div>

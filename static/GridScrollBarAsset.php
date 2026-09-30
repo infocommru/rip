@@ -5,16 +5,22 @@ namespace app\static;
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
 use yii\bootstrap5\BootstrapAsset;
+use yii\helpers\Url;
 
 class GridScrollBarAsset extends AssetBundle
 {
-    public $css = [
-        '/static/css/gridScrollBar.css',
-    ];
+    public function init()
+    {
+        parent::init();
 
-    public $js = [
-        '/static/js/gridScrollBar.js',
-    ];
+        $this->css = [
+            Url::to(['static/css/gridScrollBar.css'])
+        ];
+
+         $this->js = [
+            Url::to(['static/js/gridScrollBar.js'])
+        ];
+    }
 
     public $depends = [
         BootstrapAsset::class,

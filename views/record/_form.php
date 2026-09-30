@@ -12,7 +12,7 @@ use yii\web\View;
 * @var bool $is_create
 */
 
-$this->registerJsFile('static/js/yandex_speller.js', [
+$this->registerJsFile(getenv('BASE_URL') . 'static/js/yandex_speller.js', [
     'depends' => [\yii\web\JqueryAsset::class], // Обязательно подгружать ПОСЛЕ jQuery
     'position' => View::POS_END, // Вставка перед закрывающим тегом </body>
 ]);

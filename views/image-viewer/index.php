@@ -1,6 +1,7 @@
 <?php
 
 use app\static\OpenSeadragonAsset;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var string $path */
@@ -25,10 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const printButton = new OpenSeadragon.Button({
         tooltip: 'Печать',
-        srcRest: '/static/img/printer.png',
-        srcHover: '/static/img/printer_hover.png',
-        srcDown: '/static/img/printer_hover.png',
-        srcGroup: `/static/img/printer.png`,
+        srcRest: "<?= Url::to(['static/img/printer.png']) ?>", 
+        srcHover: "<?= Url::to(['static/img/printer_hover.png']) ?>",
+        srcDown: "<?= Url::to(['static/img/printer_hover.png']) ?>",
+        srcGroup: "<?= Url::to(['static/img/printer.png']) ?>",
 
         onClick: function () {
             printImage("<?= $path ?>");
