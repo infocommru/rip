@@ -1,5 +1,11 @@
 RewriteEngine on
 
+SetEnvIfExpr "'${BASE_URL}' != ''" BASE_URL=${BASE_URL}
+
+RewriteCond %{ENV:BASE_URL} !^$
+RewriteCond %{THE_REQUEST} !\s/${BASE_URL}(?:/|\s|\?) [NC]
+RewriteRule ^ - [F,END]
+
 RewriteRule ^${BASE_URL}/(.*)$ /$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
