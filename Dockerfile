@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libmagickwand-dev \
     ghostscript \
-    unzip nano \
+    unzip nano gettext-base\
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Настраиваем и устанавливаем расширения PHP через официальные утилиты
@@ -60,7 +60,5 @@ RUN rm -f rip.conf php.ini \
 USER root
 
 EXPOSE 80
-
-# В официальном образе дефолтная CMD уже настроена на запуск Apache, 
-# но мы дублируем её для явного контроля
-CMD ["apache2-foreground"]
+RUN chmod +x entrypoint.sh
+CMD ["/var/www/html/entrypoint.sh"]

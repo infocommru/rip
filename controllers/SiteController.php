@@ -65,14 +65,13 @@ class SiteController extends Controller {
      */
     public function actionLogin() {
         if (!Yii::$app->user->isGuest) {
-            return $this->redirect(Yii::$app->urlManager->baseUrl . '/');
+            return $this->goHome();
         }
 
         $model = new LoginForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            //return $this->goBack();
-            return $this->redirect(Yii::$app->urlManager->baseUrl . '/');
+            return $this->goBack();
         }
 
         $model->password = '';
@@ -87,7 +86,7 @@ class SiteController extends Controller {
      */
     public function actionLogout() {
         Yii::$app->user->logout();
-        return $this->redirect(Yii::$app->urlManager->baseUrl . '/');
+        return $this->goHome();
     }
 
     /**
