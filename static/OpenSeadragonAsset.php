@@ -25,8 +25,8 @@ class OpenSeadragonAsset extends AssetBundle
 
         $view->registerLinkTag([
             'rel' => 'icon',
-            'type' => 'image/png',
-            'href' => Url::to(['/favicon.png']),
+            'type' => 'image/x-icon',
+            'href' => Url::to(['/favicon.ico']),
         ]);
     }
 }
