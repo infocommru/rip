@@ -8,10 +8,6 @@ class OpenSeadragonAsset extends AssetBundle
     // Путь к установленным исходникам библиотеки в vendor
     public $sourcePath = '@npm/openseadragon/build/openseadragon';
 
-    public $js = [
-        'openseadragon.min.js',
-    ];
-
     public $publishOptions = [
         'only' => [
             'openseadragon.min.js',
@@ -28,5 +24,15 @@ class OpenSeadragonAsset extends AssetBundle
             'type' => 'image/x-icon',
             'href' => Url::to(['/favicon.ico']),
         ]);
+    }
+
+    public function init()
+    {
+        parent::init();
+
+        $this->js = [
+            'openseadragon.min.js',
+            Url::to(['/js/imageViewer.js']),
+        ];
     }
 }
