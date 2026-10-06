@@ -71,7 +71,7 @@ $this->registerJsFile(
                 </div>
             <?php endif; ?>
             <div class="col-sm">
-                <a target="_blank" id="go_new" href=<?= Url::to(['/create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
+                <a target="_blank" id="go_new" href=<?= Url::to(['/record/create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
             </div>
         </div>
     </div>
