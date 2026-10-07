@@ -618,6 +618,7 @@ class SearchController extends Controller {
             'Номер могилы',
             'Родственники',
             'Доп. инфо',
+            'Госсчет'
         ];
 
         $data_all = [];
@@ -646,6 +647,7 @@ class SearchController extends Controller {
                 $dopInfo .= "\n " . $elem['_source']['comment'];
 
             $one[] = $dopInfo;
+            $one[] = $elem['_source']['gos'] == 1 ? "Да" : 'Нет';
             $data_all[] = $one;
         }
 
