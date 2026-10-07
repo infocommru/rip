@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const config = viewerElement.dataset;
     const baseUrl = config.baseUrl;
     const printerIcon = `${baseUrl}img/printer.png`;
+    const printerRest = `${baseUrl}img/printer_rest.png`;
     const printerIconHover = `${baseUrl}img/printer_hover.png`;
+    const printerIconPressed = `${baseUrl}img/printer_pressed.png`;
 
     let imagePath = config.imagePath;
 
@@ -18,21 +20,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const printButton = new OpenSeadragon.Button({
         tooltip: 'Печать',
-        srcRest: printerIcon,
+        srcRest: printerRest,
         srcHover: printerIconHover,
-        srcDown: printerIconHover,
+        srcDown: printerIconPressed,
         srcGroup: printerIcon,
 
-        onClick: function () {
+        onRelease: function () {
             printImage(imagePath);
         }
     });
 
-    viewer.addControl(printButton.element, {
-        anchor: OpenSeadragon.ControlAnchor.ABSOLUTE,
-        top: 3,
-        left: 145,
-    });
+    // Добавляем экземпляр кнопки в стандартную группу кнопок
+    viewer.buttonGroup.buttons.push(printButton);
+
+    // Вставляем DOM-элемент кнопки в блок навигации
+    viewer.buttonGroup.element.appendChild(printButton.element);
 
     const printImage = (imageUrl) => {
         const tempImg = new Image();
