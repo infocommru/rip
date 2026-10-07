@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\Record;
 use app\models\Book;
+use app\models\Cemetery;
 use app\models\RecordHistory;
 use app\models\HelperCache;
 
@@ -337,17 +338,20 @@ class RecordController extends Controller {
             'Возраст',
             'Дата смерти',
             'Дата захоронения',
-            'Регистрационный № кремации',
-            '№ счета по кремации',
             'Номер документа ЗАГС',
             'ЗАГС',
             'Номер участка',
             'Номер ряда',
             'Номер могилы',
             'Родственники',
+            'Наименование кладбища',
+            '№ связки',
+            '№ книги регистрации',
             'Файл',
             'Комментарий',
             'Захоронение',
+            'Регистрационный № кремации',
+            '№ счета по кремации',
         ];
 
         $header2 = [
@@ -356,50 +360,63 @@ class RecordController extends Controller {
             'Age',
             'Death_Date',
             'RIP_Date',
-            'num_crem_reg',
-            'num_crem_account',
             'DocNum',
             'ZAGS',
             'Area_Num',
             'Row_Num',
             'RIP_Num',
             'Relativ_FIO_Adress',
+            'Cemetry',
+            'Bundle_Num',
+            'Book_Num',
             'FileName',
             'Comment',
             'RIP_Style',
+            'num_crem_reg',
+            'num_crem_account',
         ];
 
         $data_all = [];
         $data_all[] = $header2;
         $list = Record::find()->andWhere(['book_id' => $id])->andWhere(['deleted' => 0])->all();
 
+        if(!empty($list)){
+            $book = Book::find('cemetery_id', 'svazka', 'number', 'name')->
+                                andWhere(['id' => $list[0]->book_id])
+                                ->andWhere(['deleted' => 0])->one();
+                    
+            $cemetery = Cemetery::find('name')->andWhere(['id' => $book->cemetery_id])
+                                ->andWhere(['deleted' => 0])->one();
+        }
+
+        if(empty($book) || empty($cemetery))
+            return [];
+
         foreach ($list as $elem) {
             $one = [];
-            if ($elem->numReg) {
-                $one[] = $elem->numReg;
-            } else {
-                $one[] = $elem->numLiteral;
-            }
-
+            $one[] = ($elem->numReg) ? $elem->numReg : $elem->numLiteral;
             $one[] = $elem->fio;
             $one[] = $elem->age;
             $one[] = $elem->death_date;
             $one[] = $elem->rip_date;
-            $one[] = $elem->num_crem_reg;
-            $one[] = $elem->num_crem_account;
             $one[] = $elem->docnum;
             $one[] = $elem->zags;
             $one[] = $elem->area_num;
             $one[] = $elem->row_num;
             $one[] = $elem->rip_num;
             $one[] = $elem->relative_fio;
+            $one[] = $cemetery->name;
+            $one[] = $book->svazka;
+            $one[] = $book->number;
             $one[] = $elem->filename;
             $one[] = $elem->comment;
             $one[] = $elem->rip_style == 1 ? "Гроб" : "Урна";
+            $one[] = $elem->num_crem_reg;
+            $one[] = $elem->num_crem_account;
             $data_all[] = $one;
         }
 
-        return [$data_all, $header];
+        return [$data_all, $header, $book->name];
     }
 
     /**
@@ -408,6 +425,10 @@ class RecordController extends Controller {
      */
     public function actionExportExcel($id) {
         $data = $this->exportData($id);
+
+        if(!$data)
+            throw new NotFoundHttpException("Книга $id не найдена");
+
         $excel = Excel::create();
         $sheet = $excel->sheet();
         
@@ -416,7 +437,7 @@ class RecordController extends Controller {
 
         Yii::$app->response->clearOutputBuffers();
 
-        $excel->download('book_' . $id . '.xlsx');
+        $excel->download($data[2] . '.xlsx');
         exit();
     }
 
