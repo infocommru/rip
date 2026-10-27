@@ -161,7 +161,7 @@ class CacheRecords extends ActiveRecord
             $value["regnum"] = (string)$record['numLiteral'];
 
         $value["unknown_number"] = null;
-        $value['unknown'] = preg_match('/(неиз|н\/)/ui', $record['fio']) ? 1 : 0;
+        $value['unknown'] = preg_match('/(неиз|н\/|№)/ui', $record['fio']) ? 1 : 0;
 
         if (preg_match("#№\s+([\d\\/]+)#", (string)$record['fio'], $m)) {
             $value["unknown_number"] = $m[1];

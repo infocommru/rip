@@ -9,6 +9,9 @@ use yii\helpers\Url;
 
 class GridScrollBarAsset extends AssetBundle
 {
+    /**
+     * @return void
+     */
     public function init()
     {
         parent::init();

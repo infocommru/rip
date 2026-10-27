@@ -15,7 +15,12 @@ class OpenSeadragonAsset extends AssetBundle
         ],
     ];
 
-    public function registerAssetFiles($view)
+    /**
+     *
+     * @param mixed $view
+     * @return void
+     */
+    public function registerAssetFiles(mixed $view)
     {
         parent::registerAssetFiles($view);
 
@@ -26,6 +31,9 @@ class OpenSeadragonAsset extends AssetBundle
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function init()
     {
         parent::init();

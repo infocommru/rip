@@ -329,7 +329,7 @@ class RecordController extends Controller {
 
     /**
      * @param int $id
-     * @return array<int, list<list<int|string|null>|string>>
+     * @return array{list<list<int|string|null>>, list<string>, string|null}|array{}
      */
     private function exportData(int $id): array {
         $header = [
@@ -381,13 +381,14 @@ class RecordController extends Controller {
         $list = Record::find()->andWhere(['book_id' => $id])->andWhere(['deleted' => 0])->all();
 
         if(!empty($list)){
-            $book = Book::find('cemetery_id', 'svazka', 'number', 'name')->
-                                andWhere(['id' => $list[0]->book_id])
+            $book = Book::find()->andWhere(['id' => $list[0]->book_id])
                                 ->andWhere(['deleted' => 0])->one();
                     
-            $cemetery = Cemetery::find('name')->andWhere(['id' => $book->cemetery_id])
+            $cemetery = Cemetery::find()->andWhere(['id' => $book->cemetery_id])
                                 ->andWhere(['deleted' => 0])->one();
         }
+        else
+            return [];
 
         if(empty($book) || empty($cemetery))
             return [];
@@ -426,7 +427,7 @@ class RecordController extends Controller {
     public function actionExportExcel($id) {
         $data = $this->exportData($id);
 
-        if(!$data)
+        if(empty($data))
             throw new NotFoundHttpException("Книга $id не найдена");
 
         $excel = Excel::create();

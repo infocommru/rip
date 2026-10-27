@@ -9,6 +9,7 @@ namespace app\static;
 
 use yii\web\AssetBundle;
 use yii\helpers\Url;
+use yii\web\View;
 
 /**
  * Main application asset bundle.
@@ -26,6 +27,9 @@ class AppAsset extends AssetBundle
         'yii\bootstrap5\BootstrapAsset'
     ];
 
+    /**
+     * @return void
+     */
     public function init()
     {
         parent::init();
@@ -35,7 +39,11 @@ class AppAsset extends AssetBundle
         ];
     }
 
-    public function registerAssetFiles($view)
+    /**
+     * @param mixed $view
+     * @return void
+     */
+    public function registerAssetFiles(mixed $view)
     {
         parent::registerAssetFiles($view);
 
