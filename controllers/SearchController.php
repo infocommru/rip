@@ -90,9 +90,8 @@ class SearchController extends Controller {
             foreach ($records as $record) {
                 $value = $record->$variable;
 
-                if ($value === null || $value === '') {
+                if ($value === null || $value === '')
                     continue;
-                }
 
                 $resultsByVariable[$variable][] = [
                     'value' => $value,

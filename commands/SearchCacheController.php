@@ -22,12 +22,12 @@ class SearchCacheController extends Controller {
 
 		$standard_type = [
 			'type' => 'text', 
-			'analyzer' => 'standard', 
+			'analyzer' => 'russian_normalized',
 			'norms' => false,
 
 			'fields' => [
 				'autocomplete' => [
-					'type' => 'search_as_you_type'
+					'type' => 'search_as_you_type',
 				],
 				'keyword' => [
 					'type' => 'keyword',
@@ -35,7 +35,7 @@ class SearchCacheController extends Controller {
 				],
 				'wildcard' => [
 					'type' => 'wildcard',
-					"normalizer" => "lowercase"
+					'normalizer' => 'lowercase_yo'
 				],
 			]
 		];
@@ -44,6 +44,28 @@ class SearchCacheController extends Controller {
 			'settings' => [
 				'number_of_shards' => 1,
 				'number_of_replicas' => 0,
+				'analysis' => [
+					'char_filter' => [
+						'yo_to_e' => [
+							'type' => 'mapping',
+							'mappings' => ['ё => е', 'Ё => е']
+						]
+					],
+					'analyzer' => [
+						'russian_normalized' => [
+							'tokenizer' => 'standard',
+							'char_filter' => ['yo_to_e'],
+							'filter' => ['lowercase']
+						]
+					],
+					'normalizer' => [
+						'lowercase_yo' => [
+							'type' => 'custom',
+							'char_filter' => ['yo_to_e'],
+							'filter' => ['lowercase']
+						]
+					]
+				]
 			],
 			'mappings' => [
 				'properties' => [

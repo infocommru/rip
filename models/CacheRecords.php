@@ -160,21 +160,12 @@ class CacheRecords extends ActiveRecord
         else
             $value["regnum"] = (string)$record['numLiteral'];
 
-        $value["unknown_number"] = null;
-        $value['unknown'] = preg_match('/(неиз|н\/|№)/ui', $record['fio']) ? 1 : 0;
+        $value["unknown_number"] = '';
+        $value['unknown'] = preg_match('#((неиз|н\/|н\\\\|№|в\/с|в\\\\с).*)|(\d+(?:[\/\\\\-]\d+)+|\d{2,})#ui', $record['fio']) ? 1 : 0;
 
-        if (preg_match("#№\s+([\d\\/]+)#", (string)$record['fio'], $m)) {
-            $value["unknown_number"] = $m[1];
-        } else {
-            if ($value['unknown']) {
-                if (preg_match("#.*?(\d[\d\\/]+).*?#", (string)$record['fio'], $m)) {
-                    $value["unknown_number"] = $m[1];
-                } else {
-                    if (preg_match("#.*?(\d+).*?#", (string)$record['fio'], $m)) {
-                        $value["unknown_number"] = $m[1];
-                    }
-                }
-            }
+        if($value['unknown']){
+            preg_match('#(\d+(?:[\/\\\\-]\d+)+|\d{2,})#ui', $record['fio'], $m);
+            $value["unknown_number"] = $m[1] ?? '';
         }
 
         $basename = FileHelper::normalizePath((string)$record['filename']);
