@@ -54,7 +54,7 @@ COPY --chown=www-data:www-data . .
 
 # Чистим конфиг и создаем нужные Yii2 папки (сразу с правильными правами)
 RUN rm -f rip.conf php.ini \
-    && mkdir -p web/assets web/upload runtime
+    && mkdir -p web/assets runtime upload images
 
 # Возвращаемся на root, так как Apache на 80 порту должен стартовать от суперпользователя
 USER root

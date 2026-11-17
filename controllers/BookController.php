@@ -26,30 +26,40 @@ class BookController extends Controller {
      * @inheritDoc
      */
     public function behaviors() {
-
         return array_merge(
-                parent::behaviors(),
-                [
-                    'verbs' => [
-                        'class' => VerbFilter::className(),
-                        'actions' => [
-                            'delete' => ['POST'],
-                            'rename-folder' => ['POST'],
-                            'download-images' => ['POST'],
-                            'reload-image' => ['POST'],
-                            'update-book-records' => ['POST']
+            parent::behaviors(),
+            [
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                    'actions' => [
+                        'delete' => ['POST'],
+                        'rename-folder' => ['POST'],
+                        'download-images' => ['POST'],
+                        'reload-image' => ['POST'],
+                        'update-book-records' => ['POST']
+                    ],
+                ],
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
+                            'actions' => ['create', 'update', 'delete', 'update-book-records', 'upload-images', 'reload-image', 'download-images', 'rename-folder'],
+                            'matchCallback' => fn($rule, $action) =>
+                                (int)\Yii::$app->user->identity->role === 1
+                        ],
+                        [
+                            'allow' => true,
+                            'actions' => ['index', 'view', 'get-images-path'],
+                            'roles' => ['@'],
                         ],
                     ],
-                    'access' => [
-                        'class' => AccessControl::className(),
-                        'rules' => [
-                            [
-                                'allow' => true,
-                                'roles' => ['@'],
-                            ],
-                        ],
-                    ],
+                    'denyCallback' => function ($rule, $action) {
+                        return \Yii::$app->response->redirect(['/']);
+                    },
                 ]
+            ]
         );
     }
 
@@ -111,9 +121,6 @@ class BookController extends Controller {
      * @return \yii\web\Response
      */
     public function actionUpdateBookRecords(int $id): \yii\web\Response{
-        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1)
-            return $this->redirect(['/']);
-
         if($this->request->isPost) {
             $overwrite = \Yii::$app->request->post('overwrite', false);
             $file = UploadedFile::getInstanceByName('excel');
@@ -205,11 +212,7 @@ class BookController extends Controller {
      * @param integer $id
      * @return string
      */
-    public function actionUploadImages(int $id): string {
-        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1) {
-            $this->redirect(['/']);
-        }
-    
+    public function actionUploadImages(int $id): string {   
         $model = $this->findModel($id);
 
         return $this->render('uploadImages', [
@@ -217,11 +220,7 @@ class BookController extends Controller {
         ]);
     }
 
-    public function actionReloadImage(): \yii\web\Response {
-        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1) {
-            $this->redirect(['/']);
-        }
-    
+    public function actionReloadImage(): \yii\web\Response {    
         try {
             $file = UploadedFile::getInstanceByName('image');
             $id = $this->request->post('id');
@@ -255,10 +254,6 @@ class BookController extends Controller {
     }
 
     public function actionDownloadImages(): \yii\web\Response {
-        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1) {
-            $this->redirect(['/']);
-        }
-
         $files = UploadedFile::getInstancesByName('images');
         $id = (int) $this->request->post('id');
 
@@ -318,10 +313,6 @@ class BookController extends Controller {
      * @return \yii\web\Response
      */
     public function actionRenameFolder(): \yii\web\Response {
-        if (\app\models\User::findIdentity(\Yii::$app->user->id)->role != 1) {
-            $this->redirect(['/']);
-        }
-
         $id = (int) $this->request->post('id');
         $folderPath = $this->request->post('final-imagefolder');
         $folderPath = str_replace('/', '\\', $folderPath);
@@ -434,13 +425,5 @@ class BookController extends Controller {
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    public function beforeAction($action) {
-        if (!parent::beforeAction($action)) {
-            return false;
-        }
-
-        return parent::beforeAction($action);
     }
 }

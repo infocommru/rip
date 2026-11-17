@@ -12,7 +12,8 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
-        '@images' => '@app/upload/rip2',
+        '@images' => '@app/images',
+        '@bookSources' => '@app/upload/book'
     ],
      'container' => [
         'definitions' => [

@@ -13,7 +13,8 @@ $config = [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
         '@tests' => '@app/tests',
-        '@images' => '@app/upload/rip2',
+        '@images' => '@app/images',
+        '@bookSources' => '@app/upload/book'
     ],
     'components' => [
     	'redis' => [

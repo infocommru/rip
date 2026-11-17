@@ -6,8 +6,8 @@ services:
     init: true
     restart: unless-stopped
     volumes:
-#      - /mnt/images:/var/www/html/upload/rip2 Поменять на свое значение
-      - rip_upload:/var/www/html/web/upload
+#      - /mnt/images:/var/www/html/images Поменять на свое значение
+      - rip_upload:/var/www/html/upload
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rip.rule=PathPrefix(`/`)"

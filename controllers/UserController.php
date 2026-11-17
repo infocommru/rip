@@ -33,8 +33,13 @@ class UserController extends Controller {
                         [
                             'allow' => true,
                             'roles' => ['@'],
+                            'matchCallback' => fn($rule, $action) =>
+                                (int)\Yii::$app->user->identity->role === 1,
                         ],
                     ],
+                    'denyCallback' => function ($rule, $action) {
+                        return \Yii::$app->response->redirect(['/']);
+                    },
                 ],
             ]
         );
@@ -181,18 +186,5 @@ class UserController extends Controller {
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    public function beforeAction($action) {
-        if (!parent::beforeAction($action)) {
-            return false;
-        }
-
-        $user = \app\models\User::findIdentity(\Yii::$app->user->id);
-        if ($user->role != 1) {
-            $this->redirect(['/']);
-        }
-
-        return parent::beforeAction($action);
     }
 }

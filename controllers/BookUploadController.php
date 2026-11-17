@@ -21,30 +21,36 @@ class BookUploadController extends Controller {
      * @inheritDoc
      */
     public function behaviors() {
-
         return array_merge(
-                parent::behaviors(),
-                [
-                    'verbs' => [
-                        'class' => VerbFilter::className(),
-                        'actions' => [
-                            'delete' => ['POST'],
+            parent::behaviors(),
+            [
+                'verbs' => [
+                    'class' => VerbFilter::className(),
+                    'actions' => [
+                        'delete' => ['POST'],
+                    ],
+                ],
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'rules' => [
+                        [
+                            'allow' => false,
+                            'roles' => ['?'],
+                            'matchCallback' => fn($rule, $action) =>
+                                (int)\Yii::$app->user->identity->role === 1,
+                        ],
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
+                            'matchCallback' => fn($rule, $action) =>
+                                (int)\Yii::$app->user->identity->role === 1,
                         ],
                     ],
-                    'access' => [
-                        'class' => AccessControl::className(),
-                        'rules' => [
-                            [
-                                'allow' => false,
-                                'roles' => ['?'],
-                            ],
-                            [
-                                'allow' => true,
-                                'roles' => ['@'],
-                            ],
-                        ],
-                    ],
-                ]
+                    'denyCallback' => function ($rule, $action) {
+                        return \Yii::$app->response->redirect(['/']);
+                    },
+                ],
+            ]
         );
     }
 
@@ -61,22 +67,6 @@ class BookUploadController extends Controller {
         return $this->render('index', [
             'dataProvider' => $dataProvider,
         ]);
-    }
-
-    /**
-     * @return bool|\yii\web\Response
-     */
-    public function beforeAction($action) {
-        if (!parent::beforeAction($action)) {
-            return false;
-        }
-
-        $user = \app\models\User::findIdentity(\Yii::$app->user->id);
-        if ($user->role != 1) {
-            $this->redirect(['/']);
-        }
-
-        return parent::beforeAction($action);
     }
 
     /**

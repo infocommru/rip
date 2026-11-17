@@ -44,17 +44,13 @@ class UploadController extends Controller {
      * @param (\Closure(string=): void)|null $updateStatus
      */
     public function processUpload(BookUpload $upload, ?\Closure $updateStatus = null): void {
-        $dirPath = \Yii::getAlias('@app/web/upload/book/' . $upload->id);
-        $dirPath = FileHelper::normalizePath($dirPath);
-        $extractFile = \Yii::getAlias('@app/web/upload/book/' . $upload->id . '.zip');
-        $extractFile = FileHelper::normalizePath($extractFile);
+        $dirPath = FileHelper::normalizePath(\Yii::getAlias('@bookSources/' . $upload->id));
+        $extractFile = FileHelper::normalizePath(\Yii::getAlias('@bookSources/' . $upload->id . '.zip'));
 
-        if (is_dir($dirPath)) {
+        if (is_dir($dirPath))
             FileHelper::removeDirectory($dirPath);
-        }
-        else {
+        else
             FileHelper::createDirectory($dirPath);
-        }
 
         exec("unzip ". "$extractFile -d $dirPath");
 

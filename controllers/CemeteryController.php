@@ -37,8 +37,13 @@ class CemeteryController extends Controller {
                             [
                                 'allow' => true,
                                 'roles' => ['@'],
+                                'matchCallback' => fn($rule, $action) =>
+                                    (int)\Yii::$app->user->identity->role === 1,
                             ],
                         ],
+                        'denyCallback' => function ($rule, $action) {
+                            return \Yii::$app->response->redirect(['/']);
+                        },
                     ],
                 ]
         );
@@ -80,7 +85,7 @@ class CemeteryController extends Controller {
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionView($id) {
-        $dir_book = \Yii::getAlias('@webroot/upload/book');
+        $dir_book = \Yii::getAlias('@bookSources');
 
         if (!is_dir($dir_book)) {
             FileHelper::createDirectory($dir_book);
@@ -185,18 +190,5 @@ class CemeteryController extends Controller {
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    public function beforeAction($action) {
-        if (!parent::beforeAction($action)) {
-            return false;
-        }
-
-        $user = \app\models\User::findIdentity(\Yii::$app->user->id);
-        if ($user->role != 1) {
-            $this->redirect(['/']);
-        }
-
-        return parent::beforeAction($action);
     }
 }
