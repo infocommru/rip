@@ -110,8 +110,6 @@ class PrintController extends Controller {
                 'regnum'       => $sdata->regnum ?? '',
                 'rip_date'     => Helper::formatDate($record->rip_date ?? ''),
                 'death_date'   => Helper::formatDate($record->death_date ?? ''),
-                'num-crem-reg' => $record->num_crem_reg ?? '',
-                'num-crem-account' => $record->num_crem_account ?? '',
             ];
         }
         else {
@@ -133,8 +131,6 @@ class PrintController extends Controller {
                 'rip_date'     => Helper::formatDate("{$req->get('rip_d', '')}.{$req->get('rip_m', '')}.{$req->get('rip_y', '')}"),
                 'rip_y'        => $req->get('rip_y', ''),
                 'death_date'   => Helper::formatDate("{$req->get('dead_d', '')}.{$req->get('dead_m', '')}.{$req->get('dead_y', '')}"),
-                'num-crem-reg' => ($req->get('ext_search', '') == '1') ? $req->get('num-crem-reg', '') : '',
-                'num-crem-account' => ($req->get('ext_search', '') == '1') ? $req->get('num-crem-account', '') : '',
             ];
         }
 
@@ -142,8 +138,6 @@ class PrintController extends Controller {
 
         if($req->get('f2notFound', '') == '1'){
             return $this->render('form2_not_found', [
-                'grob' => $grob,
-                'zah_suffix' => $zah_suffix,
                 'user_fio' => $user_fio,
                 'res' => $res,
                 'title' => $title,
@@ -163,7 +157,8 @@ class PrintController extends Controller {
      * @return void
      */
     public function actionForma() {
-        $fname = "forma_f" . $_GET['spravka'] . '_N_' . $_GET['nn'] . date("_d_m_Y");
+        $req = Yii::$app->request;
+        $fname = "forma_f" . $req->get('spravka', '') . '_N_' . $req->get('nn', '') . date("_d_m_Y");
 
         $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
@@ -192,20 +187,16 @@ class PrintController extends Controller {
 
         $pdf->shrink_tables_to_fit = 1;
 	    $pdf->SetDisplayMode('default');
-
-        $htmlRender = '';
         $this->layout = false;
-        $fname = "forma_f" . $_GET['spravka'] . '_N_' . $_GET['nn'] . date("_d_m_Y");
         
-        if ($_GET['spravka'] == '1') {
+        if ($req->get('spravka', '') == '1')
             $htmlRender = $this->render('form1', ['mpdfObject' => $pdf]);
-        } else {
+        else
             $htmlRender = $this->render('form2', ['mpdfObject' => $pdf]);
-        }
 
         $pdf->WriteHTML($htmlRender);
 
-        switch ($_GET['saveas']) {
+        switch ($req->get('saveas', '')) {
             case '1':
                 $pdf->Output($fname . '.pdf', \Mpdf\Output\Destination::INLINE);
                 exit;

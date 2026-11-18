@@ -21,12 +21,6 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
 
 ?>
 <div class="record-index">
-    <?php if ($flash): ?>
-        <div class="alert alert-success" role="alert">
-            <?= $flash ?>
-        </div>
-    <?php endif; ?>
-
     <h1><?= Html::encode($this->title) ?></h1>
     
     <?=
@@ -91,16 +85,25 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                     'restore' => function ($url, $model, $key) {
                         return Html::a(
                             Html::img(Url::to(['/img/restore.png']), ['width' => '24px']), 
-                            ['record/deleted', 'record_id' => $model->id, 'a' => 'restore'], 
-                            ['title' => 'восстановить']
+                            ['record/deleted-modify', 'record_id' => $model->id, 'action' => 'restore'], 
+                            [
+                                'title' => 'восстановить', 
+                                'data' => [ 'method' => 'post' ]
+                            ]
                         );
                     },
                     // Кастомная кнопка для полного удаления
                     'delete' => function ($url, $model, $key) {
                         return Html::a(
                             Html::img(Url::to(['/img/del.png']), ['width' => '24px']), 
-                            ['record/deleted', 'record_id' => $model->id, 'a' => 'del'], 
-                            ['title' => 'удалить']
+                            ['record/deleted-modify', 'record_id' => $model->id, 'action' => 'del'], 
+                            [
+                                'title' => 'удалить',
+                                'data' => [ 
+                                        'method' => 'post',
+                                        'confirm' => 'Удалить запись безвозвратно?'
+                                    ]
+                            ]
                         );
                     },
                 ],

@@ -32,6 +32,7 @@ class RecordController extends Controller {
                     'class' => VerbFilter::className(),
                     'actions' => [
                         'delete' => ['POST'],
+                        'deleted-modify' => ['POST'],
                     ],
                 ],
                 'access' => [
@@ -164,48 +165,24 @@ class RecordController extends Controller {
     public function actionDeleted() {
         $user = \app\models\User::findIdentity(Yii::$app->user->id);
 
-        $flash = '';
-        if (isset($_GET['a'])) {
-            switch ($_GET['a']) {
-                case "restore":
-                    $rc = Record::find()->andWhere(['id' => $_GET['record_id']])->one();
-                    $rc->deleted = 0;
-                    $rc->save();
-                    HelperCache::updateSearchRecord($rc);
-                    $flash = "Запись была успешно восстановлена";
-                    break;
-                case "del":
-                    $rc = Record::find()->andWhere(['id' => $_GET['record_id']])->one();
-                    $rc->deleted = 2;
-                    $rc->save();
-                    $flash = "Запись помечена как окончательно удаленная";
-                    break;
-            }
-        }
-
         $record = new Record();
         $record->load($this->request->get());
 
         $query = Record::find()->andWhere(['deleted' => 1]);
-        if ($record->age) {
+        if ($record->age)
             $query->andWhere(["like", "age", $record->age]);
-        }
 
-        if ($record->fio) {
+        if ($record->fio)
             $query->andWhere(["like", "fio", $record->fio]);
-        }
 
-        if ($record->numReg) {
+        if ($record->numReg)
             $query->andWhere(["like", "numReg", $record->numReg]);
-        }
 
-        if ($record->death_date) {
+        if ($record->death_date)
             $query->andWhere(["like", "death_date", $record->death_date]);
-        }
 
-        if ($record->rip_date) {
+        if ($record->rip_date)
             $query->andWhere(["like", "rip_date", $record->rip_date]);
-        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -223,8 +200,31 @@ class RecordController extends Controller {
             'dataProvider' => $dataProvider,
             'user' => $user,
             'model' => new Record(),
-            'flash' => $flash
         ]);
+    }
+
+    public function actionDeletedModify(){
+        $request = Yii::$app->request;
+
+        switch ($request->get('action', '')) {
+            case "restore":
+                $rc = Record::find()->andWhere(['id' => (int) $request->get('record_id', '')])->one();
+                $rc->deleted = 0;
+                $rc->save();
+
+                HelperCache::updateSearchRecord($rc);
+                Yii::$app->session->setFlash('success', 'Запись была успешно восстановлена');
+                break;
+            case "del":
+                $rc = Record::find()->andWhere(['id' => (int) $request->get('record_id', '')])->one();
+                $rc->deleted = 2;
+                $rc->save();
+
+                Yii::$app->session->setFlash('success', 'Запись помечена как окончательно удаленная');
+                break;
+        }
+
+        return $this->redirect(['deleted']);
     }
 
     /**
@@ -314,7 +314,7 @@ class RecordController extends Controller {
                 $pnum = 1;
 
                 if (($next) && ($model->filename == $next->filename))
-                    $pnum = $_POST['pageNum'];
+                    $pnum = $this->request->post('pageNum', '');
             }
         }
 
@@ -457,9 +457,8 @@ class RecordController extends Controller {
 
         $sCache = \app\models\CacheRecords::find()->query(['term' => ['record_id' => $model->id]])->one();
         
-        if ($sCache) {
+        if ($sCache)
             $sCache->delete();
-        }
 
         return $this->redirect(['index', 'book' => $model->book_id]);
     }

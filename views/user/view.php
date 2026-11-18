@@ -17,12 +17,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?php if($model->book_id):?>
-        <?=
-        Html::a('Снять назначенную книгу', ['view', 'id' => $model->id, "delbook" => '1'], [
-            'class' => 'btn btn-warning',])
-        ?>
-    <?php endif;?>
         <?=
         Html::a('Удалить', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',

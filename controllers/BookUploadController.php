@@ -28,6 +28,8 @@ class BookUploadController extends Controller {
                     'class' => VerbFilter::className(),
                     'actions' => [
                         'delete' => ['POST'],
+                        'start-search-cache' => ['POST'],
+                        'start-upload-books' => ['POST'],
                     ],
                 ],
                 'access' => [

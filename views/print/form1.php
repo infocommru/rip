@@ -10,7 +10,8 @@ use yii\helpers\Url;
  * @var \Mpdf\Mpdf $mpdfObject
  */
 
-$docnum = $_GET['docnum'];
+$req = Yii::$app->request;
+$docnum = $req->get('docnum', '');
 $svid = "";
 $number = $docnum;
 
@@ -24,7 +25,7 @@ $number = str_repeat('&nbsp;', 10) . $number . str_repeat('&nbsp;', 20);
 $svid = str_repeat('&nbsp;', 10) . $svid . str_repeat('&nbsp;', 20);
 
 
-$vidano = trim(strtr($_GET['vidano'], ["  " => " "]));
+$vidano = trim(strtr($req->get('vidano', ''), ["  " => " "]));
 $vd = explode(" ", $vidano);
 
 $normal = 'verdana';
@@ -67,10 +68,10 @@ $normal = 'verdana';
                     </div>
                     <div class='number'>№ 
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <?= $_GET['nn'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= $req->get('nn', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span> от
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;
-                            <?= date('d.m.Y', strtotime($_GET['date'])); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= date('d.m.Y', strtotime($req->get('date', ''))); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span>
                         <br />
                     </div>
@@ -117,12 +118,12 @@ $normal = 'verdana';
                 ?>
             </div>
             <?php
-                $string = $_GET['fio'] . str_repeat("\u{00A0}", 12);
+                $string = $req->get('fio', '') . str_repeat("\u{00A0}", 12);
 
-                if ($_GET['age']){
-                    $string .= ', ' . $_GET['age'];
+                if ($req->get('age', '')){
+                    $string .= ', ' . $req->get('age', '');
 
-                    if(intval($_GET['age']) . '' == $_GET['age']){
+                    if(intval($req->get('age', '')) . '' == $req->get('age', '')){
                         $string .= 'лет';
                     }
                 }
@@ -137,9 +138,9 @@ $normal = 'verdana';
                     захоронен(а)
                 </div>
                 <?php
-                    $rip_style = (isset($_GET['print_grob']) && $_GET['zahr'] !== '-') ? ", {$_GET['zahr']}" : '';
-                    $place = $_GET['place'] ? ", {$_GET['place']}" : '';
-                    $zahoron = "{$_GET['cemetery']} $rip_style {$place}";
+                    $rip_style = (($req->get('print_grob') !== null) && ($req->get('zahr', '') !== '-')) ? ', ' . $req->get('zahr', '') : '';
+                    $place = $req->get('place', '') ? ', ' . $req->get('place', '') : '';
+                    $zahoron = $req->get('cemetery', '') . " $rip_style $place";
                     $zahoron = trim($zahoron);
                     $zahoron = ltrim($zahoron, ',');
 
@@ -156,8 +157,8 @@ $normal = 'verdana';
                     </td>
                     <td class="table_data">
                         <?php
-                            $string = $_GET['rip_date'] . (((isset($_GET['print_date'])) && ($_GET['death_date'])) ?
-                                    ', дата смерти - ' . $_GET['death_date'] : '');
+                            $string = $req->get('rip_date', '') . ((($req->get('print_date') !== null) && ($req->get('death_date', ''))) ?
+                                    ', дата смерти - ' . $req->get('death_date', '') : '');
                             echo Helper::truncateToWidth(str_repeat("\u{00A0}", 20) . $string, $normal, 7, 450, $mpdfObject);
                         ?>
                     </td>
@@ -170,19 +171,19 @@ $normal = 'verdana';
                 по свидетельству о смерти <span class='information_underline'><?= $svid ?></span> № <span class='information_underline'><?= $number ?></span>                    
             </div>
             <?php
-                Helper::tablePrint('место государственной регистрации смерти', $_GET['zags'], 330, 545, 7, $normal, $mpdfObject);
-                Helper::tablePrint('ответственное лицо', $_GET['author2'], 445, 545, 7, $normal, $mpdfObject);
+                Helper::tablePrint('место государственной регистрации смерти', $req->get('zags', ''), 330, 545, 7, $normal, $mpdfObject);
+                Helper::tablePrint('ответственное лицо', $req->get('author2', ''), 445, 545, 7, $normal, $mpdfObject);
             ?>
             <div class="hinttext">
                 (фамилия, имя, отчество)
             </div>
             <div>
-                Основание: связка <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['svazka'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , 
-                книга <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['book_num'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , стр. <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['page_num'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , п/п <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $_GET['pp'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                Основание: связка <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $req->get('svazka', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , 
+                книга <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $req->get('book_num', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , стр. <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $req->get('page_num', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> , п/п <span class="information_underline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $req->get('pp', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </div> 
             <?php
-                if (isset($_GET['print_comment']))
-                    Helper::tablePrint('', trim($_GET['comment']), 545, 545, 7, $normal, $mpdfObject, 10);
+                if ($req->get('print_comment') !== null)
+                    Helper::tablePrint('', trim($req->get('comment', '')), 545, 545, 7, $normal, $mpdfObject, 10);
             ?>
             <div class="comment_ips"> 
                 Справка сформирована на основе ИПС "Поиск захоронений"
@@ -194,7 +195,7 @@ $normal = 'verdana';
                 </span> 
                 &nbsp;&nbsp;&nbsp;(
                 <span class="information_underline">
-                    <?php echo Helper::truncateToWidth(str_repeat("\u{00A0}", 3) . $_GET['author'] . str_repeat("\u{00A0}", 4), $normal, 7, 250, $mpdfObject); ?>
+                    <?php echo Helper::truncateToWidth(str_repeat("\u{00A0}", 3) . $req->get('author', '') . str_repeat("\u{00A0}", 4), $normal, 7, 250, $mpdfObject); ?>
                 </span>
                 )
             </div>

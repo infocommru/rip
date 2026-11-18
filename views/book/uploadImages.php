@@ -188,15 +188,20 @@ if(!$titlePath['path'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('path-builder');
-        
-        if(container) {
-            let dirs = document.getElementsByName('final-imagefolder')[0].value.split(/[\/\\]+/);
-            dirs = (dirs && dirs.length > 0) ? dirs : [''];
+        const folderForm = document.getElementById('folder-form');
+        const hiddenPath = document.getElementsByName('final-imagefolder')[0];
 
-            dirs.forEach((dir) => {
-                createFolder(dir);
-            });
+        // Для пустой книги форма не рендерится, инициализировать нечего
+        if (!container || !folderForm || !hiddenPath) {
+            return;
         }
+        
+        let dirs = hiddenPath.value.split(/[\/\\]+/);
+        dirs = (dirs && dirs.length > 0) ? dirs : [''];
+
+        dirs.forEach((dir) => {
+            createFolder(dir);
+        });
 
         document.querySelectorAll('.hide-render').forEach((element) => {
             element.classList.remove('d-none');
@@ -206,11 +211,18 @@ if(!$titlePath['path'])
             const row = document.createElement('div');
 
             row.className = 'folder-row d-flex align-items-center gap-2 mb-2';
-            row.innerHTML = `
-                <input type="text" class="form-control w-25" value="${value}" placeholder="Уровень папки">
-                <button type="button" class="remove-button btn-close"></button>
-            `;
 
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control w-25';
+            input.placeholder = 'Уровень папки';
+            input.value = value;
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'remove-button btn-close';
+
+            row.append(input, removeButton);
             container.appendChild(row);
         }
 
@@ -232,18 +244,16 @@ if(!$titlePath['path'])
             }
         });
 
-        // Сборка пути без использования '\'
-        document.getElementById('folder-form').addEventListener('submit', function(e) {
+        // Сборка пути через обратный слэш
+        folderForm.addEventListener('submit', function(e) {
             const inputs = container.querySelectorAll('.form-control');
             
             const pathSegments = Array.from(inputs)
                 .map(input => input.value.trim())
                 .filter(val => val !== ''); // Исключаем пустые поля
 
-            // Собираем через прямой слэш /
-            const resultPath = pathSegments.join('\\');
-            
-            document.getElementsByName('final-imagefolder')[0].value = resultPath;
+            // Собираем через обратный слэш \
+            hiddenPath.value = pathSegments.join('\\');
         });
     });
 </script>

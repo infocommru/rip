@@ -8,18 +8,17 @@ use yii\helpers\Url;
  * @var \Mpdf\Mpdf $mpdfObject
  */
 
-$rip_date = '';
-if (isset($_GET['rip_date']))
-    $rip_date = $_GET['rip_date'];
+$req = Yii::$app->request;
+$rip_date = $req->get('rip_date', '');
 $rip_year = '';
 if (preg_match("#.*?(\d\d\d\d).*?#", $rip_date, $m)) {
     $rip_year = $m[1];
 }
 
-if (isset($_GET['dead_year']))
-    $rip_year = $_GET['dead_year'];
+if ($req->get('dead_year') !== null)
+    $rip_year = $req->get('dead_year', '');
 
-$vidano = trim(strtr($_GET['vidano'], ["  " => " "]));
+$vidano = trim(strtr($req->get('vidano', ''), ["  " => " "]));
 $vd = explode(" ", $vidano);
 
 $normal = 'verdana';
@@ -59,10 +58,10 @@ $normal = 'verdana';
                     </div>
                     <div class='number'>№ 
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <?= $_GET['nn'] ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= $req->get('nn', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span> от
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;
-                            <?= date('d.m.Y', strtotime($_GET['date'])) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= date('d.m.Y', strtotime($req->get('date', ''))) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span>
                     </div>
                 </td>
@@ -105,7 +104,7 @@ $normal = 'verdana';
                 о захоронении
             </div>
             <?php
-                Helper::tablePrint('', $_GET['fio'], 545, 545, 7, $normal, $mpdfObject, 10);
+                Helper::tablePrint('', $req->get('fio', ''), 545, 545, 7, $normal, $mpdfObject, 10);
             ?>
             <div class="hinttext">
                 (фамилия, имя, отчество полностью)
@@ -113,7 +112,7 @@ $normal = 'verdana';
             <div>
                 на кладбище 
                 <span class="information_underline">
-                    <?php echo str_repeat("&nbsp;", 7) ?><?= $_GET['cemetery'] ?><?php echo str_repeat("&nbsp;", 5) ?>
+                    <?php echo str_repeat("&nbsp;", 7) ?><?= $req->get('cemetery', '') ?><?php echo str_repeat("&nbsp;", 5) ?>
                 </span>
                 в 
                 <span class="information_underline">
@@ -121,8 +120,8 @@ $normal = 'verdana';
                 </span> году
             </div>
             <?php
-                if (isset($_GET['print_comment'])){
-                    $string = trim($_GET['comment']);
+                if ($req->get('print_comment') !== null){
+                    $string = trim($req->get('comment', ''));
                     Helper::tablePrint('', $string, 545, 545, 7, $normal, $mpdfObject, 10);
                 }
             ?>
@@ -137,7 +136,7 @@ $normal = 'verdana';
                 </span> (
                 <span class="information_underline">
                     <?php
-                        $string = str_repeat("\u{00A0}", 3) . $_GET['author'] . str_repeat("\u{00A0}", 3);
+                        $string = str_repeat("\u{00A0}", 3) . $req->get('author', '') . str_repeat("\u{00A0}", 3);
                         echo Helper::truncateToWidth($string, $normal, 7, 305, $mpdfObject);
                     ?>
                 </span>)

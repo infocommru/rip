@@ -20,10 +20,18 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Создать заново поисковый кэш', ['start-search-cache'], ['class' => 'btn btn-danger']) ?>
-        <?= Html::a('Загрузить в базу записи', ['start-upload-books'], ['class' => 'btn btn-success']) ?>
-    </p>
+    <div class="mb-3">
+        <?= Html::a('Создать заново поисковый кэш', ['start-search-cache'], 
+            [
+                'class' => 'btn btn-danger',
+                'data-method' => 'post',
+            ]) ?>
+        <?= Html::a('Загрузить в базу записи', ['start-upload-books'], 
+            [
+                'class' => 'btn btn-success',
+                'data-method' => 'post',
+            ]) ?>
+    </div>
 
     <?=
     GridView::widget([

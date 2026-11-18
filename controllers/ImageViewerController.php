@@ -38,14 +38,11 @@ class ImageViewerController extends Controller {
      * Открывает по указанному относительному пути скан через OpenSeadragon
      * @param string $path
      * @return string
+     * @throws NotFoundHttpException если путь некорректен, выходит за пределы @images или файл не найден
      */
     public function actionIndex(string $path): string {
         $this->layout = 'viewer';
-
-        $filePath = FileHelper::normalizePath(Yii::getAlias("@images/" . $path));
-
-        if(!is_file($filePath))
-            throw new NotFoundHttpException("Файл $path не найден");
+        $this->resolveImagePath($path);
 
         $path = Url::to([
             '/image-viewer/image',
@@ -65,15 +62,40 @@ class ImageViewerController extends Controller {
      */
     public function actionImage(string $filename): string
     {
-        $file = FileHelper::normalizePath(Yii::getAlias("@images/{$filename}"));
-
-        if (!is_file($file)) {
-            throw new \yii\web\NotFoundHttpException('Файл не найлен');
-        }
+        $file = $this->resolveImagePath($filename);
 
         Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
         Yii::$app->response->headers->set('Content-Type', 'image/jpeg');
 
         return file_get_contents($file);
+    }
+
+    /**
+     * Безопасно преобразует относительный путь в абсолютный путь внутри каталога @images.
+     *
+     * @param string $relativePath
+     * @return string абсолютный путь к существующему файлу
+     * @throws NotFoundHttpException если путь некорректен, выходит за пределы @images или файл не найден
+     */
+    private function resolveImagePath(string $relativePath): string
+    {
+        $notFound = new NotFoundHttpException("Файл $relativePath не найден");
+
+        if ($relativePath === '' || str_contains($relativePath, "\0"))
+            throw $notFound;
+
+        $baseDir = realpath(Yii::getAlias('@images'));
+        if ($baseDir === false)
+            throw $notFound;
+
+        $requested = realpath($baseDir . DIRECTORY_SEPARATOR . str_replace('\\', '/', $relativePath));
+        // Файл должен находиться строго внутри каталога @images
+        if (!str_starts_with($requested, $baseDir . DIRECTORY_SEPARATOR))
+            throw $notFound;
+        
+        if ($requested === false || !is_file($requested))
+            throw $notFound;
+
+        return $requested;
     }
 }

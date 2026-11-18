@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Book;
 use app\models\User;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -89,18 +90,6 @@ class UserController extends Controller {
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionView($id) {
-        if (isset($_GET['delbook'])) {
-            $user = $this->findModel($id);
-            $book = \app\models\Book::find()->andWhere(['id' => $user->book_id])->one();
-
-            if ($book) {
-                $book->status = 1;
-                $book->save();
-                $user->book_id = null;
-                $user->save();
-            }
-        }
-
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
