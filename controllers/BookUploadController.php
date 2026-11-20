@@ -36,12 +36,6 @@ class BookUploadController extends Controller {
                     'class' => AccessControl::className(),
                     'rules' => [
                         [
-                            'allow' => false,
-                            'roles' => ['?'],
-                            'matchCallback' => fn($rule, $action) =>
-                                (int)\Yii::$app->user->identity->role === 1,
-                        ],
-                        [
                             'allow' => true,
                             'roles' => ['@'],
                             'matchCallback' => fn($rule, $action) =>
@@ -61,7 +55,7 @@ class BookUploadController extends Controller {
      *
      * @return string
      */
-    public function actionIndex() {
+    public function actionIndex(): string {
         $dataProvider = new ActiveDataProvider([
             'query' => BookUpload::find(),
         ]);

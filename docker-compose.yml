@@ -34,7 +34,7 @@ services:
     init: true
     restart: unless-stopped
     volumes:
-      - rip_upload:/var/www/html/web/upload
+      - rip_upload:/var/www/html/upload
     environment:
       - DB_HOST=mysql
       - DB_DATABASE=${DB_DATABASE}

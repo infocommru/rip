@@ -87,9 +87,8 @@ class CemeteryController extends Controller {
     public function actionView($id) {
         $dir_book = \Yii::getAlias('@bookSources');
 
-        if (!is_dir($dir_book)) {
+        if (!is_dir($dir_book))
             FileHelper::createDirectory($dir_book);
-        }
     	
         if ($this->request->isPost) {
             $file = UploadedFile::getInstanceByName('zipfile');
