@@ -12,6 +12,7 @@ use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\BadRequestHttpException;
 use yii\filters\VerbFilter;
 use \avadim\FastExcelWriter\Excel;
 use Yii;
@@ -39,14 +40,35 @@ class RecordController extends Controller {
                     'class' => AccessControl::className(),
                     'rules' => [
                         [
-                            'allow' => false,
-                            'roles' => ['?'],
+                            'allow' => true,
+                            'roles' => ['@'],
+                            'actions' => ['update'],
+                            'matchCallback' => fn($rule, $action) =>
+                                in_array((int)\Yii::$app->user->identity->role, [1, 3, 4], true)
                         ],
                         [
                             'allow' => true,
                             'roles' => ['@'],
+                            'actions' => ['create', 'delete'],
+                            'matchCallback' => fn($rule, $action) =>
+                                in_array((int)\Yii::$app->user->identity->role, [1, 4], true)
+                        ],
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
+                            'actions' => ['vopros', 'deleted', 'deleted-modify'],
+                            'matchCallback' => fn($rule, $action) =>
+                                in_array((int)\Yii::$app->user->identity->role, [1, 4], true)
+                        ],
+                        [
+                            'allow' => true,
+                            'roles' => ['@'],
+                            'actions' => ['index', 'view', 'export-excel'],
                         ],
                     ],
+                    'denyCallback' => function ($rule, $action) {
+                        return \Yii::$app->response->redirect(['/']);
+                    },
                 ],
             ]
         );
@@ -58,10 +80,13 @@ class RecordController extends Controller {
      * @return string
      */
     public function actionIndex() {
-        $user = \app\models\User::findIdentity(Yii::$app->user->id);
+        $bookId = intval($this->request->get('book', ''));
 
-        $bookId = intval($_GET['book']);
-        $book = \app\models\Book::find()->andWhere(["id" => $bookId])->one();
+        if($bookId === 0)
+            throw new BadRequestHttpException('Не указан параметр id');
+
+        $user = Yii::$app->user->identity;
+        $book = Book::find()->andWhere(["id" => $bookId])->one();
 
         $record = new Record();
         $record->load($this->request->get());
@@ -233,9 +258,12 @@ class RecordController extends Controller {
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id) {
+    public function actionView(int $id): string {
+        $user = Yii::$app->user->identity;
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'user' => $user,
         ]);
     }
 
@@ -279,8 +307,8 @@ class RecordController extends Controller {
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id) {
-        $user = \app\models\User::findIdentity(Yii::$app->user->id);
+    public function actionUpdate(int $id) {
+        $user = Yii::$app->user->identity;
 
         $model = $this->findModel($id);
         $book = \app\models\Book::find()->andWhere(["id" => $model->book_id])->one();
@@ -305,16 +333,12 @@ class RecordController extends Controller {
             $rHistory->updated_at = time();
             $rHistory->user_id = Yii::$app->user->id;
             $rHistory->info = serialize($model1->attributes);
-            $rHistory->save();
 
-            if ($model->save()) {
+            if ($model->save() && $rHistory->save()){
                 HelperCache::updateSearchRecord($model);
+                Yii::$app->session->setFlash('success', 'Данные были успешно обновлены');
 
-                $id_next = $next ? $next->id : $model->id;
-                $pnum = 1;
-
-                if (($next) && ($model->filename == $next->filename))
-                    $pnum = $this->request->post('pageNum', '');
+                return $this->redirect(['update', 'id' => $model->id]);
             }
         }
 
@@ -424,7 +448,7 @@ class RecordController extends Controller {
      * @return void
      * @param int $id
      */
-    public function actionExportExcel($id) {
+    public function actionExportExcel(int $id) {
         $data = $this->exportData($id);
 
         if(empty($data))
@@ -449,7 +473,7 @@ class RecordController extends Controller {
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id) {
+    public function actionDelete(int $id) {
         $model = $this->findModel($id);
 
         $model->deleted = 1;
@@ -470,7 +494,7 @@ class RecordController extends Controller {
      * @return Record the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id) {
+    protected function findModel(int $id) {
         if (($model = Record::findOne(['id' => $id])) !== null) {
             return $model;
         }

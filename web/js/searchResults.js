@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Глобальная переменная для хранения текущих фильтров поиска
+        // Глобальная переменная для хранения текущих фильтров поиска
     let currentFilterObject = {};
 
     document.addEventListener('click', async (e) => {
@@ -95,17 +96,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         e.preventDefault();
 
-        const recordId = btn.dataset.id; // Получаем data-id
+        const recordId = btn.dataset.id;
 
         try {
-            // Формируем URL с GET-параметром
+            // CSRF-токен из meta-тегов, которые выводит registerCsrfMetaTags()
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+            const csrfParam = document.querySelector('meta[name="csrf-param"]')?.content ?? '_csrf';
+
+            // record_id передаем в query string, т.к. Yii2 биндит параметры действия из GET
             const url = new URL(`${baseUrl}search/vopros`, window.location.origin);
             url.searchParams.append('record_id', recordId);
 
+            // CSRF-токен передаем в теле POST-запроса
+            const body = new URLSearchParams();
+            body.append(csrfParam, csrfToken);
+
             const response = await fetch(url, {
+                method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Флаг AJAX-запроса для Yii2
-                }
+                    'X-Requested-With': 'XMLHttpRequest', // Флаг AJAX-запроса для Yii2
+                    'X-CSRF-Token': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                },
+                body: body.toString(),
             });
 
             if (!response.ok) {

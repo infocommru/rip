@@ -32,6 +32,7 @@ class SearchController extends Controller {
                         'class' => VerbFilter::className(),
                         'actions' => [
                             'delete' => ['POST'],
+                            'vopros' => ['POST'],
                         ],
                     ],
                     'access' => [
@@ -677,8 +678,12 @@ class SearchController extends Controller {
      * @param int $record_id
      * @return void
      */
-    public function actionVopros($record_id) {
+    public function actionVopros(int $record_id) {
         $record = Record::find()->andWhere(['id' => $record_id])->one();
+
+        if(!$record)
+            throw new NotFoundHttpException('Указанной записи не существует');
+
         $record->vopros = 1;
         $record->save();
 
@@ -690,8 +695,12 @@ class SearchController extends Controller {
      * @param int $book_id
      * @return void
      */
-    public function actionBookCover($book_id) {
+    public function actionBookCover(int $book_id) {
         $book = Book::find()->andWhere(['id' => $book_id])->one();
+
+        if(!$book)
+            throw new NotFoundHttpException('Указанной книги не существует');
+
         $titleBook = HelperImg::getTitleImage($book);
         
         if($titleBook){

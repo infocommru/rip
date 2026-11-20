@@ -38,11 +38,6 @@ $this->registerJsFile(
 
 ?>
 <div class="record-update">
-    <?php if ($_POST): ?>
-        <div class="alert alert-success" role="alert">
-            Данные были успешно обновлены
-        </div>
-    <?php endif; ?>
     <h3><?= Html::encode($this->title) ?>
         <?php if ($model->updated_at): ?>
             (Обновлено <?= date("Y-m-d H:i", $model->updated_at) ?>)
@@ -70,9 +65,11 @@ $this->registerJsFile(
                     <a  id="go_ff" href=<?= Url::to(['/record-history', 'record_id' => $model->id]) ?> class="btn btn-info">История изменений</a>
                 </div>
             <?php endif; ?>
-            <div class="col-sm">
-                <a target="_blank" id="go_new" href=<?= Url::to(['/record/create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
-            </div>
+            <?php if (in_array($user->role, [1, 4], true)): ?>
+                <div class="col-sm">
+                    <a target="_blank" id="go_new" href=<?= Url::to(['/record/create', 'book_id' => $model->book_id]) ?> class="btn btn-danger">Создать новую</a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     <hr />

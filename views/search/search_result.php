@@ -5,6 +5,7 @@ use app\models\User;
 use app\models\Record;
 use yii\helpers\Url;
 use yii\web\View;
+use yii\helpers\Html;
 
 use yii\grid\GridView;
 use yii\widgets\Pjax;
@@ -23,7 +24,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 ?>
 
 <h5>Всего записей: <?= $count_result ?>. 
-    Выгрузить <a href="<?= \yii\helpers\Url::to(['search/export', 'search' => $search]) ?>">excel</a></h5>
+    Выгрузить <a href="<?= Url::to(['search/export', 'search' => $search]) ?>">excel</a></h5>
 
 <?php Pjax::begin([
     'id' => 'pjax-tab-' . $search['cemetery'],
@@ -80,10 +81,10 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
             'format' => 'raw', // Обязательно для работы HTML-тегов (br, a)
             'value' => function ($model) {
                 // Экранируем данные из БД для безопасности
-                $svazka = \yii\helpers\Html::encode($model->svazka_num);
-                $book   = \yii\helpers\Html::encode($model->book_num);
-                $page   = \yii\helpers\Html::encode($model->page_num);
-                $punkt  = \yii\helpers\Html::encode($model->page_punkt);
+                $svazka = Html::encode($model->svazka_num);
+                $book   = Html::encode($model->book_num);
+                $page   = Html::encode($model->page_num);
+                $punkt  = Html::encode($model->page_punkt);
 
                 $dopInfo = "св. {$svazka}, кн. {$book}, стр. {$page}, строка: {$punkt}";
 
@@ -94,13 +95,13 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 }
 
                 if ($comment !== '') {
-                    $encodedComment = \yii\helpers\Html::encode($comment);
-                    $dopInfo .= ', ' . \yii\helpers\Html::tag('span', $encodedComment, ['class' => 'text-danger']);
+                    $encodedComment = Html::encode($comment);
+                    $dopInfo .= ', ' . Html::tag('span', $encodedComment, ['class' => 'text-danger']);
                 }
 
                 // Генерируем ссылку через хелпер Yii
                 if (!empty($model->book_id)) {
-                    $link = \yii\helpers\Html::a(
+                    $link = Html::a(
                         'обложка',
                         ['/search/book-cover', 'book_id' => $model->book_id],
                         [
@@ -126,8 +127,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 // 1. Просмотр файла/изображения
                 if (!empty($model->filename)) {
                     $path = str_replace('\\', '/', $model->filename);
-                    $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img(Url::to(['/img/view.png']), ['width' => '24px', 'alt' => 'просмотр']),
+                    $links[] = Html::a(
+                        Html::img(Url::to(['/img/view.png']), ['width' => '24px', 'alt' => 'просмотр']),
                         ['image-viewer/index', 'path' => $path],
                         [
                             'target' => '_blank',
@@ -139,8 +140,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 
                 // 2. Требуется уточнить данные
                 if (empty($model->vopros)) {
-                    $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img(Url::to(['/img/vopros.png']), ['width' => '24px', 'alt' => 'уточнить']),
+                    $links[] = Html::a(
+                        Html::img(Url::to(['/img/vopros.png']), ['width' => '24px', 'alt' => 'уточнить']),
                         '#',
                         [
                             'class' => 'btn-vopros', // По классу будет навешиваться событие
@@ -152,8 +153,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 
                 // 3. История изменений
                 if (!empty($model->updated_at)) {
-                    $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img(Url::to(['/img/history.png']), ['width' => '24px', 'alt' => 'история']),
+                    $links[] = Html::a(
+                        Html::img(Url::to(['/img/history.png']), ['width' => '24px', 'alt' => 'история']),
                         ['/record-history/index', 'record_id' => $model->record_id],
                         [
                             'target' => '_blank',
@@ -165,8 +166,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 }
 
                 // 4. Печать
-                $links[] = \yii\helpers\Html::a(
-                    \yii\helpers\Html::img(Url::to(['/img/print.png']), ['width' => '24px', 'alt' => 'печать']),
+                $links[] = Html::a(
+                    Html::img(Url::to(['/img/print.png']), ['width' => '24px', 'alt' => 'печать']),
                     ['/print/index', 'record_id' => $model->record_id],
                     [
                         'target' => '_blank',
@@ -178,8 +179,8 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
 
                 // 5. Редактирование (для пользователей с ролью != 2)
                 if ($user && $user->role != 2) {
-                    $links[] = \yii\helpers\Html::a(
-                        \yii\helpers\Html::img(Url::to(['/img/edit.png']), ['width' => '24px', 'alt' => 'редактировать']),
+                    $links[] = Html::a(
+                        Html::img(Url::to(['/img/edit.png']), ['width' => '24px', 'alt' => 'редактировать']),
                         ['/record/update', 'id' => $model->record_id],
                         [
                             'target' => '_blank',
@@ -191,7 +192,7 @@ $search['cemetery'] = $search['cemetery'] ?? Yii::$app->request->get('id', 'defa
                 }
 
                 // Объединяем все ссылки
-                return \yii\helpers\Html::tag(
+                return Html::tag(
                     'div',
                     implode('', $links),
                     ['style' => 'display:flex; flex-direction:column; align-items:center; gap:4px;']

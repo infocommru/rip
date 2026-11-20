@@ -25,11 +25,13 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Добавить запись', ['create', 'book_id' => $book_id], ['class' => 'btn btn-success']) ?>
+        <?php
+            if (in_array($user->role, [1, 4], true))
+                echo Html::a('Добавить запись', ['create', 'book_id' => $book_id], ['class' => 'btn btn-success']);
+        ?>
         <?= Html::a('Экспорт Excel', ['export-excel', 'id' => $book_id] , ['class' => 'btn btn-warning']) ?>
         <?= Html::a('Сбросить фильтры', ['index', 'book' => $book_id], ['class' => 'btn btn-info']) ?>
     </p>
-
 
     <?=
     GridView::widget([
@@ -73,16 +75,14 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                 'header' => '',
                 'template' => '{view} {update} {delete}',
                 'visibleButtons' => [
-                    'delete' => function ($model) {
-                        $user = Yii::$app->user->identity;
-                        return true;
+                    'delete' => function ($model) use ($user) {
+                        return in_array($user->role, [1, 4], true);
                     },
                     'view' => function ($model) {
                         return true;
                     },
-                    'update' => function ($model) {
-                        $user = Yii::$app->user->identity;
-                        return true;
+                    'update' => function ($model) use ($user) {
+                        return in_array($user->role, [1, 3, 4], true);
                     },
                 ],
             ],

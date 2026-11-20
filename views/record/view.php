@@ -5,28 +5,32 @@ use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var app\models\Record $model */
+
+
 $this->title = $model->book->name . ",запись №" . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Записи', 'url' => ['index', 'book' => $model->book_id]];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="record-view">
-
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?=
-        Html::a('Удалить', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Удаляем?',
-                'method' => 'post',
-            ],
-        ])
+        <?php
+            if(in_array($user->role, [1, 3, 4], true))
+                echo Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']);
+        ?>
+        <?php
+            if (in_array($user->role, [1, 4], true))
+                echo Html::a('Удалить', ['delete', 'id' => $model->id], [
+                    'class' => 'btn btn-danger',
+                    'data' => [
+                        'confirm' => 'Удаляем?',
+                        'method' => 'post',
+                    ],
+                ]);
         ?>
     </p>
-
 
     <?=
     DetailView::widget([
@@ -53,6 +57,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'age',
             'death_date',
             'rip_date',
+            'num_crem_reg',
+            'num_crem_account',
             'docnum',
             'zags',
             'area_num',
@@ -61,7 +67,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'relative_fio',
             'filename',
             'comment:ntext',
-            //'rip_style',
             [
                 'label' => 'Захоронение',
                 'value' => function ($model) {

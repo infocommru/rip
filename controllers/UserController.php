@@ -106,16 +106,16 @@ class UserController extends Controller {
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
 
-                $post = $_POST['User'];
+                $post = $this->request->post('User', '');
                 $model->middlename = $post['middlename'];
                 $model->position = $post['position'];
-                if ($model->save()) {
+
+                if ($model->save())
                     return $this->redirect(['view', 'id' => $model->id]);
-                }
             }
-        } else {
-            $model->loadDefaultValues();
         }
+        else
+            $model->loadDefaultValues();
 
         return $this->render('create', [
             'model' => $model,
@@ -136,12 +136,12 @@ class UserController extends Controller {
             if (!$model->book_id)
                 $model->book_id = null;
 
-            $post = $_POST['User'];
+            $post = $this->request->post('User', '');
             $model->middlename = $post['middlename'];
             $model->position = $post['position'];
-            if ($model->save()) {
+
+            if ($model->save())
                 return $this->redirect(['view', 'id' => $model->id]);
-            }
         }
 
         return $this->render('update', [
