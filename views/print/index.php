@@ -41,45 +41,45 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="col-sm-6">
                     <label for="fio">ФИО умершего</label>
-                    <input class="form-control" type="text" name="fio" id="fio" value="<?= htmlspecialchars($res['fio']) ?>" />
+                    <input class="form-control" type="text" name="fio" id="fio" value="<?= Html::encode($res['fio']) ?>" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-3">
                     <label for="docnum">Номер документа</label>
-                    <input class="form-control" type="text" name="docnum" id="docnum" value="<?= htmlspecialchars($res['docnum']) ?>" />
+                    <input class="form-control" type="text" name="docnum" id="docnum" value="<?= Html::encode($res['docnum']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="rip_date">Дата захоронения</label>
-                    <input class="form-control" type="text" name="rip_date" id="rip_date" value="<?= htmlspecialchars($res['rip_date']) ?>" />
+                    <input class="form-control" type="text" name="rip_date" id="rip_date" value="<?= Html::encode($res['rip_date']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="death_date">Дата смерти</label>
-                    <input class="form-control" type="text" name="death_date" id="death_date" value="<?= htmlspecialchars($res['death_date']) ?>" />
+                    <input class="form-control" type="text" name="death_date" id="death_date" value="<?= Html::encode($res['death_date']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="age">Возраст</label>
-                    <input class="form-control" type="text" name="age" id="age" value="<?= htmlspecialchars($res['age']) ?>" />
+                    <input class="form-control" type="text" name="age" id="age" value="<?= Html::encode($res['age']) ?>" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-3">
                     <label for="svazka">Номер связки</label>
-                    <input class="form-control" type="text" name="svazka" id="svazka" value="<?= htmlspecialchars($res['svazka']) ?>" />
+                    <input class="form-control" type="text" name="svazka" id="svazka" value="<?= Html::encode($res['svazka']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="book_num">Номер книги</label>
-                    <input class="form-control" type="text" name="book_num" id="book_num" value="<?= htmlspecialchars($res['number']) ?>" />
+                    <input class="form-control" type="text" name="book_num" id="book_num" value="<?= Html::encode($res['number']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="page_num">Страница</label>
-                    <input class="form-control" type="text" name="page_num" id="page_num" value="<?= htmlspecialchars($res['page_num']) ?>" />
+                    <input class="form-control" type="text" name="page_num" id="page_num" value="<?= Html::encode($res['page_num']) ?>" />
                 </div>
                 <div class="col-sm-3">
                     <label for="pp">п/п</label>
-                    <input class="form-control" type="text" name="pp" id="pp" value="<?= htmlspecialchars($res['regnum']) ?>" />
+                    <input class="form-control" type="text" name="pp" id="pp" value="<?= Html::encode($res['regnum']) ?>" />
                 </div>
             </div>
 
@@ -91,7 +91,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         class="form-control"
                         name="cemetery"
                         id="cemetery"
-                        value="<?= htmlspecialchars($res['cemetery'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                        value="<?= Html::encode($res['cemetery'] ?? '') ?>"
                     >
                 </div>
                 <div class="col-sm-2"> 
@@ -111,29 +111,29 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="col-sm-7">
                     <label for="place" class="form-label mb-0">Номер участка, ряда и места</label>
-                    <input class="form-control" type="text" name="place" id="place" value="<?= htmlspecialchars($zah_suffix) ?>" />
+                    <input class="form-control" type="text" name="place" id="place" value="<?= Html::encode($zah_suffix) ?>" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-4"> 
                     <label for="author">Специалист по работе с архивом</label>
-                    <input class="form-control" type="text" name="author" id="author" value="<?= htmlspecialchars($user_fio) ?>" />
+                    <input class="form-control" type="text" name="author" id="author" value="<?= Html::encode($user_fio) ?>" />
                 </div>
                 <div class="col-sm-4"> 
                     <label for="author2">Ответственное лицо</label>
-                    <input class="form-control" type="text" name="author2" id="author2" value="<?= htmlspecialchars($res['relative_fio']) ?>" />
+                    <input class="form-control" type="text" name="author2" id="author2" value="<?= Html::encode($res['relative_fio']) ?>" />
                 </div>
                 <div class="col-sm-4"> 
                     <label for="zags">ЗАГС</label>
-                    <input class="form-control" type="text" name="zags" id="zags" value="<?= htmlspecialchars($res['zags']) ?>" />
+                    <input class="form-control" type="text" name="zags" id="zags" value="<?= Html::encode($res['zags']) ?>" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-12"> 
                     <label for="comment">Комментарий</label>
-                    <input class="form-control" type="text" name="comment" id="comment" value="<?= htmlspecialchars($res['comment']) ?>"/>
+                    <input class="form-control" type="text" name="comment" id="comment" value="<?= Html::encode($res['comment']) ?>"/>
                 </div>
             </div>
 

@@ -12,6 +12,7 @@ use app\static\GridScrollBarAsset;
  *  @var yii\data\ActiveDataProvider $dataProvider
  *  @var app\models\Book $book
  *  @var app\models\Record $model
+ *  @var \app\models\User $user
  *  @var int $book_id
 */
 $this->title = $book->name;

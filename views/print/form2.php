@@ -2,6 +2,7 @@
 
 use \app\models\Helper;
 use yii\helpers\FileHelper;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 /**
@@ -58,7 +59,7 @@ $normal = 'verdana';
                     </div>
                     <div class='number'>№ 
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <?= $req->get('nn', '') ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <?= Html::encode($req->get('nn', '')) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span> от
                         <span class="number_ubderline">&nbsp;&nbsp;&nbsp;
                             <?= date('d.m.Y', strtotime($req->get('date', ''))) ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -69,10 +70,10 @@ $normal = 'verdana';
                     <table class="citizen">
                         <?php
                             if ((sizeof($vd) > 1) && (( mb_strlen($vd[1], 'utf8') <= 2) || (substr_count($vidano, '.')))) {
-                                $string = 'Гр. ' . Helper::truncateToWidth($vidano, $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth(Html::encode($vidano), $normal, 8, 135, $mpdfObject);
                             } 
                             else {
-                                $string = 'Гр. ' . Helper::truncateToWidth($vd[0], $normal, 8, 135, $mpdfObject);
+                                $string = 'Гр. ' . Helper::truncateToWidth(Html::encode($vd[0]), $normal, 8, 135, $mpdfObject);
                             }
 
                             echo '<tr><td class="citizen_underline">' .$string . "</td></tr>";
@@ -81,7 +82,7 @@ $normal = 'verdana';
 
                             if ((sizeof($vd) > 1) && ( mb_strlen($vd[1], 'utf8') > 2) && (!substr_count($vidano, '.'))) {
                                 for ($i = 1; $i < sizeof($vd); $i++) {
-                                    $string = Helper::truncateToWidth($tmp_rep . $vd[$i], $normal, 8, 150, $mpdfObject);
+                                    $string = Helper::truncateToWidth($tmp_rep . Html::encode($vd[$i]), $normal, 8, 160, $mpdfObject);
                                     echo '<tr><td class="citizen_underline">' . $string . "</td></tr>";
                                 }
                             } else {
@@ -104,7 +105,7 @@ $normal = 'verdana';
                 о захоронении
             </div>
             <?php
-                Helper::tablePrint('', $req->get('fio', ''), 545, 545, 7, $normal, $mpdfObject, 10);
+                Helper::tablePrint('', Html::encode($req->get('fio', '')), 545, 545, 7, $normal, $mpdfObject, 10);
             ?>
             <div class="hinttext">
                 (фамилия, имя, отчество полностью)
@@ -112,16 +113,16 @@ $normal = 'verdana';
             <div>
                 на кладбище 
                 <span class="information_underline">
-                    <?php echo str_repeat("&nbsp;", 7) ?><?= $req->get('cemetery', '') ?><?php echo str_repeat("&nbsp;", 5) ?>
+                    <?php echo str_repeat("&nbsp;", 7) ?><?= Html::encode($req->get('cemetery', '')) ?><?php echo str_repeat("&nbsp;", 5) ?>
                 </span>
                 в 
                 <span class="information_underline">
-                    <?php echo str_repeat("&nbsp;", 10) ?><?= $rip_year ?><?php echo str_repeat("&nbsp;", 10) ?>
+                    <?php echo str_repeat("&nbsp;", 10) ?><?= Html::encode($rip_year) ?><?php echo str_repeat("&nbsp;", 10) ?>
                 </span> году
             </div>
             <?php
                 if ($req->get('print_comment') !== null){
-                    $string = trim($req->get('comment', ''));
+                    $string = Html::encode(trim($req->get('comment', '')));
                     Helper::tablePrint('', $string, 545, 545, 7, $normal, $mpdfObject, 10);
                 }
             ?>
@@ -136,7 +137,7 @@ $normal = 'verdana';
                 </span> (
                 <span class="information_underline">
                     <?php
-                        $string = str_repeat("\u{00A0}", 3) . $req->get('author', '') . str_repeat("\u{00A0}", 3);
+                        $string = str_repeat("\u{00A0}", 3) . Html::encode($req->get('author', '')) . str_repeat("\u{00A0}", 3);
                         echo Helper::truncateToWidth($string, $normal, 7, 305, $mpdfObject);
                     ?>
                 </span>)

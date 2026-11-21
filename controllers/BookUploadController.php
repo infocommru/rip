@@ -39,11 +39,12 @@ class BookUploadController extends Controller {
                             'allow' => true,
                             'roles' => ['@'],
                             'matchCallback' => fn($rule, $action) =>
-                                (int)\Yii::$app->user->identity->role === 1,
+                                Yii::$app->user->identity instanceof \app\models\User
+                                    && (int)Yii::$app->user->identity->role === 1
                         ],
                     ],
                     'denyCallback' => function ($rule, $action) {
-                        return \Yii::$app->response->redirect(['/']);
+                        return Yii::$app->response->redirect(['/']);
                     },
                 ],
             ]

@@ -17,6 +17,8 @@ use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\web\UploadedFile;
 
+use Yii;
+
 /**
  * BookController implements the CRUD actions for Book model.
  */
@@ -47,7 +49,8 @@ class BookController extends Controller {
                             'roles' => ['@'],
                             'actions' => ['create', 'update', 'delete', 'update-book-records', 'upload-images', 'reload-image', 'download-images', 'rename-folder'],
                             'matchCallback' => fn($rule, $action) =>
-                                (int)\Yii::$app->user->identity->role === 1
+                                Yii::$app->user->identity instanceof \app\models\User
+                                    && (int)Yii::$app->user->identity->role === 1
                         ],
                         [
                             'allow' => true,
@@ -56,7 +59,7 @@ class BookController extends Controller {
                         ],
                     ],
                     'denyCallback' => function ($rule, $action) {
-                        return \Yii::$app->response->redirect(['/']);
+                        return Yii::$app->response->redirect(['/']);
                     },
                 ]
             ]
@@ -121,32 +124,30 @@ class BookController extends Controller {
      * @return \yii\web\Response
      */
     public function actionUpdateBookRecords(int $id): \yii\web\Response{
-        if($this->request->isPost) {
-            $overwrite = \Yii::$app->request->post('overwrite', false);
-            $file = UploadedFile::getInstanceByName('excel');
+        $overwrite = Yii::$app->request->post('overwrite', false);
+        $file = UploadedFile::getInstanceByName('excel');
 
-            $validator = new FileValidator([
-                'extensions' => ['xlsx'],
-                'mimeTypes' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-            ]);
+        $validator = new FileValidator([
+            'extensions' => ['xlsx'],
+            'mimeTypes' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        ]);
 
-            if($validator->validate($file, $error)){
-                set_time_limit(0);
+        if($validator->validate($file, $error)){
+            set_time_limit(0);
 
-                if($overwrite){
-                    Record::deleteAll(['book_id' => $id]);
-                    HelperCache::deleteBook($id);
-                }
-
-                \app\models\HelperExcel::processBookExcel($id, $file->tempName);
-                \Yii::$app->session->setFlash('success', 'Файл успешно обработан.');
+            if($overwrite){
+                Record::deleteAll(['book_id' => $id]);
+                HelperCache::deleteBook($id);
             }
-            else{
-                \Yii::$app->session->setFlash('error', 'Ошибка! ' . $error);
-            } 
+
+            \app\models\HelperExcel::processBookExcel($id, $file->tempName);
+            Yii::$app->session->setFlash('success', 'Файл успешно обработан.');
+        }
+        else{
+            Yii::$app->session->setFlash('error', 'Ошибка! ' . $error);
         }
 
-        return $this->redirect(\Yii::$app->request->referrer);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -334,9 +335,12 @@ class BookController extends Controller {
             $orgPath = HelperImg::getImagesFilepath($book, true)['path'];
             $originalPath = FileHelper::normalizePath(\Yii::getAlias("@images/" . $orgPath));
             $newPath = FileHelper::normalizePath(\Yii::getAlias("@images/" . $folderPath));
+            $basePath = FileHelper::normalizePath(\Yii::getAlias("@images"));
 
-            if($newPath === FileHelper::normalizePath(\Yii::getAlias("@images")) || @file_exists($newPath))
-                throw new \yii\base\UserException("Путь указан неверно");
+            if($newPath === $basePath
+                || !str_starts_with($newPath, $basePath . DIRECTORY_SEPARATOR)
+                || @file_exists($newPath))
+                    throw new \yii\base\UserException("Путь указан неверно");
 
             $updateValue = function() use ($orgPath, $folderPath, $id, $book){
                 $safePath = addcslashes($orgPath, '%_\\') . '%';

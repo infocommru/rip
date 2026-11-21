@@ -26,7 +26,6 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
         <?= Html::a('Добавить кладбище', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-
     <?=
     GridView::widget([
         'dataProvider' => $dataProvider,
@@ -45,6 +44,4 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
         ],
     ]);
     ?>
-
-
 </div>

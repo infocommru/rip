@@ -12,19 +12,13 @@ use app\models\User;
 <div class="user-form">
 
     <?php $form = ActiveForm::begin(); ?>
-
+    
     <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'password')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'firstname')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'lastname')->textInput(['maxlength' => true]) ?>
-
-<?= $form->field($model, 'middlename')->textInput(['maxlength' => true]) ?>
-
-<?= $form->field($model, 'position')->textInput(['maxlength' => true]) ?>
-
+    <?= $form->field($model, 'middlename')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'position')->textInput(['maxlength' => true]) ?>
     <?= $form->field($model, 'role')->dropDownList(User::roleList()) ?>
 
     <div class="form-group">

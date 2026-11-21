@@ -13,6 +13,8 @@ use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\web\UploadedFile;
 
+use Yii;
+
 /**
  * CemeteryController implements the CRUD actions for Cemetery model.
  */
@@ -38,11 +40,12 @@ class CemeteryController extends Controller {
                                 'allow' => true,
                                 'roles' => ['@'],
                                 'matchCallback' => fn($rule, $action) =>
-                                    (int)\Yii::$app->user->identity->role === 1,
+                                    Yii::$app->user->identity instanceof \app\models\User
+                                        && (int)Yii::$app->user->identity->role === 1
                             ],
                         ],
                         'denyCallback' => function ($rule, $action) {
-                            return \Yii::$app->response->redirect(['/']);
+                            return Yii::$app->response->redirect(['/']);
                         },
                     ],
                 ]
@@ -54,7 +57,7 @@ class CemeteryController extends Controller {
      *
      * @return string
      */
-    public function actionIndex() {
+    public function actionIndex(): string {
         $cemetery = new Cemetery();
         $cemetery->load($this->request->get());
 
@@ -84,7 +87,7 @@ class CemeteryController extends Controller {
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id) {
+    public function actionView(int $id) {
         $dir_book = \Yii::getAlias('@bookSources');
 
         if (!is_dir($dir_book))
@@ -106,10 +109,11 @@ class CemeteryController extends Controller {
                 if ($upload->save()) {
                     $destination_path = FileHelper::normalizePath($dir_book . '/' . $upload->id . '.zip');
                     $file->saveAs($destination_path);
+                    Yii::$app->session->setFlash('success', "Подгрузили архив книг");
                 }
             }
             else {
-                \Yii::$app->session->setFlash('error', $error);
+                Yii::$app->session->setFlash('error', $error);
                 return $this->refresh();
             }
         }
@@ -147,7 +151,7 @@ class CemeteryController extends Controller {
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id) {
+    public function actionUpdate(int $id) {
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
@@ -155,7 +159,7 @@ class CemeteryController extends Controller {
         }
 
         return $this->render('update', [
-                    'model' => $model,
+            'model' => $model,
         ]);
     }
 
@@ -166,11 +170,10 @@ class CemeteryController extends Controller {
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($id) {
+    public function actionDelete(int $id) {
         $cemetery = $this->findModel($id);
         $cemetery->deleted = 1;
         $cemetery->save();
-        //$this->findModel($id)->delete();
 
         \app\models\HelperCache::deleteCemetery($cemetery->id);
         return $this->redirect(['index']);

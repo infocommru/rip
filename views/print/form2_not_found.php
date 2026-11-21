@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="col-sm-4">
                     <label for="dead_year">Год захоронения</label>
-                    <input class="form-control" type="text" name="dead_year" id="dead_year" value="<?= htmlspecialchars($res['rip_y']) ?>" />
+                    <input class="form-control" type="text" name="dead_year" id="dead_year" value="<?= Html::encode($res['rip_y']) ?>" />
                     <input type="hidden" name="spravka" value="2">
                 </div>
             </div>
@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
                 <div class="col-sm-6">
                     <label for="fio">ФИО умершего</label>
-                    <input class="form-control" type="text" name="fio" id="fio" value="<?= htmlspecialchars($res['fio']) ?>" />
+                    <input class="form-control" type="text" name="fio" id="fio" value="<?= Html::encode($res['fio']) ?>" />
                 </div>
             </div>
             <div class="row">
@@ -59,18 +59,18 @@ $this->params['breadcrumbs'][] = $this->title;
                         class="form-control"
                         name="cemetery"
                         id="cemetery"
-                        value="<?= htmlspecialchars($res['cemetery'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                        value="<?= Html::encode($res['cemetery'] ?? '') ?>"
                     >
                 </div>
                 <div class="col-sm-9"> 
                     <label for="author">Специалист по работе с архивом</label>
-                    <input class="form-control" type="text" name="author" id="author" value="<?= htmlspecialchars($user_fio) ?>" />
+                    <input class="form-control" type="text" name="author" id="author" value="<?= Html::encode($user_fio) ?>" />
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12"> 
                     <label for="comment">Комментарий</label>
-                    <input class="form-control" type="text" name="comment" id="comment" value="<?= htmlspecialchars($res['comment']) ?>" />
+                    <input class="form-control" type="text" name="comment" id="comment" value="<?= Html::encode($res['comment']) ?>" />
                     <input type="hidden" name="print_comment" value="2">
                 </div>
             </div>

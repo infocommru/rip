@@ -7,6 +7,7 @@ use app\models\Book;
 use app\models\Cemetery;
 use app\models\RecordHistory;
 use app\models\HelperCache;
+use yii\helpers\FileHelper;
 
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -44,21 +45,24 @@ class RecordController extends Controller {
                             'roles' => ['@'],
                             'actions' => ['update'],
                             'matchCallback' => fn($rule, $action) =>
-                                in_array((int)\Yii::$app->user->identity->role, [1, 3, 4], true)
+                                Yii::$app->user->identity instanceof \app\models\User
+                                    && in_array((int)Yii::$app->user->identity->role, [1, 3, 4], true)
                         ],
                         [
                             'allow' => true,
                             'roles' => ['@'],
                             'actions' => ['create', 'delete'],
                             'matchCallback' => fn($rule, $action) =>
-                                in_array((int)\Yii::$app->user->identity->role, [1, 4], true)
+                                Yii::$app->user->identity instanceof \app\models\User
+                                    && in_array((int)Yii::$app->user->identity->role, [1, 4], true)
                         ],
                         [
                             'allow' => true,
                             'roles' => ['@'],
                             'actions' => ['vopros', 'deleted', 'deleted-modify'],
                             'matchCallback' => fn($rule, $action) =>
-                                in_array((int)\Yii::$app->user->identity->role, [1, 4], true)
+                                Yii::$app->user->identity instanceof \app\models\User
+                                    && in_array((int)Yii::$app->user->identity->role, [1, 4], true)
                         ],
                         [
                             'allow' => true,
@@ -67,7 +71,7 @@ class RecordController extends Controller {
                         ],
                     ],
                     'denyCallback' => function ($rule, $action) {
-                        return \Yii::$app->response->redirect(['/']);
+                        return Yii::$app->response->redirect(['/']);
                     },
                 ],
             ]
@@ -228,7 +232,10 @@ class RecordController extends Controller {
         ]);
     }
 
-    public function actionDeletedModify(){
+    /**
+     * @return \yii\web\Response
+     */
+    public function actionDeletedModify(): \yii\web\Response {
         $request = Yii::$app->request;
 
         switch ($request->get('action', '')) {
@@ -321,9 +328,16 @@ class RecordController extends Controller {
             $model->fio = preg_replace('/\s+/', ' ', trim((string)$model->fio));
             $model->updated_at = time();
             $model->user_id = Yii::$app->user->id;
-            $model->filename = strtr($model->filename, [
-                "/" => "\\"
-            ]);
+
+            $basePath = FileHelper::normalizePath(\Yii::getAlias("@images"));
+            $newPath = FileHelper::normalizePath(\Yii::getAlias("@images/" . $model->filename));
+
+            if(!str_starts_with($newPath, $basePath . DIRECTORY_SEPARATOR))
+                $model->filename = '';
+            else{
+                $model->filename = strtr($model->filename, [
+                "/" => "\\" ]);
+            }
 
             $model->vopros = 0;
 
@@ -338,7 +352,7 @@ class RecordController extends Controller {
                 HelperCache::updateSearchRecord($model);
                 Yii::$app->session->setFlash('success', 'Данные были успешно обновлены');
 
-                return $this->redirect(['update', 'id' => $model->id]);
+                return $this->refresh();
             }
         }
 

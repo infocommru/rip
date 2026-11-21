@@ -3,7 +3,10 @@
 namespace app\models;
 
 use app\models\Book;
+use app\models\Record;
+use app\models\HelperCache;
 use \avadim\FastExcelReader\Excel;
+use yii\helpers\FileHelper;
 
 class HelperExcel {
     /**
@@ -61,8 +64,8 @@ class HelperExcel {
         ];
 
         $saveData = [];
-
         $logStr = '';
+        $basePath = FileHelper::normalizePath(\Yii::getAlias("@images"));
         
         foreach ($sheet->nextRow() as $rowNum => $row) {
             $query_last = \app\models\Record::find()->andWhere(['book_id' => $bookId]);
@@ -157,13 +160,28 @@ class HelperExcel {
                         $record->relative_fio = (string)$v;
                         break;
                     case 'O':
-                        $record->filename = strtr((string)$v, ['/' => '\\']);
+                        $requested = FileHelper::normalizePath($basePath . '/' . trim((string)$v));
+                        $record->filename = '';
 
-                        if (!isset($filenames[$v]))
-                            $filenames[$v] = [];
+                        if((string)$v){
+                            if (!str_starts_with($requested, $basePath . DIRECTORY_SEPARATOR))
+                            {
+                                $valid = false;
+                                $logStr .= 'error filename path: ' . (string)$v . PHP_EOL;
+                                break;
+                            }
+                            else
+                                $record->filename = trim(strtr((string)$v, ['/' => '\\']));
+                        }
 
-                        if (!in_array($nReg, $filenames[$v]))
-                            $filenames[$v][] = $nReg;
+                        if(!$record->filename)
+                            break;
+
+                        if (!isset($filenames[$record->filename]))
+                            $filenames[$record->filename] = [];
+
+                        if (!in_array($nReg, $filenames[$record->filename]))
+                            $filenames[$record->filename][] = $nReg;
 
                         break;
                     case 'P':
@@ -262,7 +280,7 @@ class HelperExcel {
 
             if(sizeof($saveData) >= 1000){
                 \Yii::$app->db->createCommand()
-                    ->batchInsert(\app\models\Record::tableName(), $saveDataNames, $saveData)
+                    ->batchInsert(Record::tableName(), $saveDataNames, $saveData)
                     ->execute();
 
                 $saveData = [];
@@ -271,7 +289,7 @@ class HelperExcel {
 
         if(sizeof($saveData) > 0){
             \Yii::$app->db->createCommand()
-                ->batchInsert(\app\models\Record::tableName(), $saveDataNames, $saveData)
+                ->batchInsert(Record::tableName(), $saveDataNames, $saveData)
                 ->execute();
 
             unset($saveData);
@@ -284,7 +302,7 @@ class HelperExcel {
         if (\Yii::$app instanceof \yii\console\Application)
             echo $logStr;
 
-        $statInfo['records'] = \app\models\Record::find()->andWhere(['book_id' => $bookId])->count();
+        $statInfo['records'] = Record::find()->andWhere(['book_id' => $bookId])->count();
 
         $rCount = [];
         foreach ($filenames as $fName => $list) {

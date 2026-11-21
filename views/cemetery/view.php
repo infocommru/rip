@@ -13,13 +13,6 @@ $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="cemetery-view">
-
-    <?php if (!empty($_FILES)): ?>
-        <div class="alert alert-success" role="alert">
-            Подгрузили архив книг
-        </div>
-    <?php endif; ?>
-
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>

@@ -84,18 +84,27 @@ class ImageViewerController extends Controller {
         if ($relativePath === '' || str_contains($relativePath, "\0"))
             throw $notFound;
 
-        $baseDir = realpath(Yii::getAlias('@images'));
+        $baseDir = Yii::getAlias('@images');
         if ($baseDir === false)
             throw $notFound;
 
-        $requested = realpath($baseDir . DIRECTORY_SEPARATOR . str_replace('\\', '/', $relativePath));
+        $requested = FileHelper::normalizePath($baseDir . '/' . str_replace('\\', '/', $relativePath));
         // Файл должен находиться строго внутри каталога @images
         if (!str_starts_with($requested, $baseDir . DIRECTORY_SEPARATOR))
             throw $notFound;
         
-        if ($requested === false || !is_file($requested))
+        if ($requested === false || !is_file($requested) || !$this->isJpeg($requested))
             throw $notFound;
 
         return $requested;
+    }
+
+    /**
+     * Проверяет расширение и MIME-тип файла по его содержимому через FileHelper.
+     */
+    private function isJpeg(string $file): bool
+    {
+        return in_array(mb_strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['pjp', 'jfif', 'jpe', 'pjpeg', 'jpeg', 'jpg'], true)
+            && FileHelper::getMimeType($file) === 'image/jpeg';
     }
 }

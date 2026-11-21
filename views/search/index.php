@@ -104,7 +104,7 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                             <option value='0'>-</option>
                             <?php
                                 foreach ($cemeteries as $cemetery)
-                                    echo "<option value='" . $cemetery->id . "'>" . $cemetery->name . "</option>";
+                                    echo "<option value='" . Html::encode((string)$cemetery->id) . "'>" . Html::encode($cemetery->name) . "</option>";
                             ?>
                         </select>
                     </div>
@@ -117,7 +117,7 @@ $cemeteriesFormated = ArrayHelper::toArray($cemeteries, [
                             <?php
                                 $riplist = \app\models\Record::ripStyleTypes();
                                 foreach ($riplist as $rip_id => $rip_val)
-                                    echo "<option value='" . $rip_id . "'>" . $rip_val . "</option>";
+                                    echo "<option value='" . Html::encode((string)$rip_id) . "'>" . Html::encode($rip_val) . "</option>";
                             ?>
                         </select>
                     </div>

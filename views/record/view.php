@@ -3,8 +3,10 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\Record $model */
+/** @var yii\web\View $this
+* @var app\models\Record $model
+* @var \app\models\User $user
+*/
 
 
 $this->title = $model->book->name . ",запись №" . $model->id;

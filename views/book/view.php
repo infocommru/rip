@@ -26,9 +26,19 @@ $obloshka = \app\models\HelperImg::getTitleImage($model);
     <p>
         <?php if ($is_admin) echo Html::a('Обновить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']); ?>
         <?php echo Html::a('Смотреть записи', ['/record', 'book' => $model->id ], ['class' => 'btn btn-primary']); ?>
-        <?php if ($obloshka): ?>
-            <a target="_blank" class='btn btn-primary' href='<?= $obloshka ?>'>Обложка</a>
-        <?php endif; ?>
+
+        <?php
+            if ($obloshka) {
+                Html::a('Обложка', $obloshka,
+                    [
+                        'class' => 'btn btn-primary',
+                        'target' => '_blank',
+                        'rel' => 'noopener noreferrer',
+                    ]
+                );
+            }
+        ?>
+
         <?php
         if ($is_admin) {
             echo Html::a('Загрузить сканы', ['upload-images', 'id' => $model->id], ['class' => 'btn btn-primary me-1']);
