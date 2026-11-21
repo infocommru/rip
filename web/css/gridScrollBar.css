@@ -20,20 +20,3 @@
 .floating-scrollbar-inner {
     height: 1px;
 }
-
-/* Кастомный вид скроллбара */
-.floating-scrollbar::-webkit-scrollbar,
-.grid-view::-webkit-scrollbar {
-    height: 10px;
-}
-
-.floating-scrollbar::-webkit-scrollbar-thumb,
-.grid-view::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.floating-scrollbar::-webkit-scrollbar-thumb:hover,
-.grid-view::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}

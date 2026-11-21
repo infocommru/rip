@@ -64,6 +64,8 @@ $this->registerAssetBundle(GridScrollBarAsset::class);
                             return "обработано";
                         case 3:
                             return "кладбище удалено, обработка невозможна";
+                        case 4:
+                            return "архива книг в хранилище нет, обработка невозможна";
                     }
                 }
             ],

@@ -176,7 +176,7 @@ class CemeteryController extends Controller {
         $cemetery->save();
 
         \app\models\HelperCache::deleteCemetery($cemetery->id);
-        return $this->redirect(['index']);
+        return $this->redirect(['cemetery']);
     }
 
     /**

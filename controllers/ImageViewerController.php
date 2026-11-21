@@ -85,7 +85,7 @@ class ImageViewerController extends Controller {
             throw $notFound;
 
         $baseDir = Yii::getAlias('@images');
-        if ($baseDir === false)
+        if (!is_dir($baseDir))
             throw $notFound;
 
         $requested = FileHelper::normalizePath($baseDir . '/' . str_replace('\\', '/', $relativePath));
@@ -93,7 +93,7 @@ class ImageViewerController extends Controller {
         if (!str_starts_with($requested, $baseDir . DIRECTORY_SEPARATOR))
             throw $notFound;
         
-        if ($requested === false || !is_file($requested) || !$this->isJpeg($requested))
+        if (!is_file($requested) || !$this->isJpeg($requested))
             throw $notFound;
 
         return $requested;

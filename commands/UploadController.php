@@ -39,13 +39,16 @@ class UploadController extends Controller {
 
     /**
      * Creates the search index.
-     * @return void
+     * @return bool
 	 * @param BookUpload $upload
      * @param (\Closure(string=): void)|null $updateStatus
      */
-    public function processUpload(BookUpload $upload, ?\Closure $updateStatus = null): void {
+    public function processUpload(BookUpload $upload, ?\Closure $updateStatus = null): bool {
         $dirPath = FileHelper::normalizePath(Yii::getAlias("@bookSources/{$upload->id}"));
         $extractFile = FileHelper::normalizePath(Yii::getAlias("@bookSources/{$upload->id}.zip"));
+
+        if(!is_file($extractFile))
+            return false;
 
         if (is_dir($dirPath))
             FileHelper::removeDirectory($dirPath);
@@ -73,7 +76,8 @@ class UploadController extends Controller {
                 ->andWhere(['deleted'=>0])
                 ->one();
 
-            if($bookLast)$book = $bookLast;
+            if($bookLast)
+                $book = $bookLast;
 
             $book->number = $bookData['number'];
             $book->svazka = $bookData['svazka'];
@@ -89,6 +93,8 @@ class UploadController extends Controller {
             $book->per_page = $statInfo['per_page'];
             $book->save();
         }
+
+        return true;
     }
 
     /**
@@ -134,10 +140,21 @@ class UploadController extends Controller {
             $uploads[$upload]->status = 1;
             $uploads[$upload]->save();
 
-            $this->processUpload($uploads[$upload], $updateStatus);
+            if($this->processUpload($uploads[$upload], $updateStatus)){
+                $uploads[$upload]->status = 2;
+                $uploads[$upload]->save();
+            }
+            else{
+                $uploads[$upload]->status = 4;
+                $uploads[$upload]->save();
 
-            $uploads[$upload]->status = 2;
-            $uploads[$upload]->save();
+                $logStr = "archive doesn't exist: " . "{$uploads[$upload]->id}.zip" . PHP_EOL;
+
+                if($updateStatus)
+                    $updateStatus(rtrim($logStr, PHP_EOL));
+                if (\Yii::$app instanceof \yii\console\Application)
+                    echo $logStr;
+            }
         }
     }
 }
